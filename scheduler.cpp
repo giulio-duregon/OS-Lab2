@@ -36,7 +36,7 @@ void Scheduler::set_scheduler_type(const char *s)
     _scheduler_type = type;
 
     // See if we need to check for additional args
-    if ((_scheduler_type) == RR || (_scheduler_type == PREPRIO) || (_scheduler_type == RR))
+    if ((_scheduler_type) == RR || (_scheduler_type == PRIO) || (_scheduler_type == PREPRIO))
     {
         // Increment pointer (get away from the character string)
         s++;
@@ -49,7 +49,7 @@ void Scheduler::set_scheduler_type(const char *s)
 void Scheduler::scan_optional(const char *s)
 {
     sscanf(s, "%d:%d", &quantum, &maxprio);
-    if (maxprio == 0)
+    if ((maxprio == 0) && ((_scheduler_type == PRIO) || (_scheduler_type == PREPRIO)))
     {
         maxprio = 4;
     }
@@ -59,4 +59,17 @@ void Scheduler::scan_optional(const char *s)
 SCHEDULER_TYPE Scheduler::get_type()
 {
     return _scheduler_type;
+}
+
+char *GET_ENUM_NAME(int enum_code)
+
+{
+    static char *enum_name[] = {
+        "FCFS",
+        "LCFS",
+        "SRTF",
+        "RR",
+        "PRIO",
+        "PREPRIO"};
+    return enum_name[enum_code];
 }

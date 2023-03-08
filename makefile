@@ -13,7 +13,7 @@ all: $(OBJ)
 
 	
 run: all
-	./$BIN ./given_inputs/input-1
+	./$(BIN) -v -t -e -p -s E5:10 input1 rfile
 
 clean:
 	rm -f *.o

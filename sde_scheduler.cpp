@@ -55,8 +55,7 @@ int main(int argc, char **argv)
     // Parse the type and set the scheduler
     scheduler_builder.set_scheduler_type(s);
     SCHEDULER_TYPE type = scheduler_builder.get_type();
-    printf("Type: %d\n", type);
-    std::cout << "Enum type:" << GET_ENUM_NAME(type) << std::endl;
+    printf("Enum Type: %s, Numerical Type: %d\n", GET_ENUM_NAME(type), type);
 
     // TO DELETE LATER:
     printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
