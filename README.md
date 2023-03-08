@@ -1,6 +1,6 @@
 # OS-Lab2 - Scheduler - Giulio Duregon - gjd9961
 
-## How to run `linker`
+## How to run `scheduler`
 
 **Short answer: run `make` from the CLI.**
 My code uses the gcc compiler with the following flags:

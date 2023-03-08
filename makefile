@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-g -std=c++11 -Wall -pedantic -lstdc++
-BIN=scheduler
+BIN=sde_scheduler
 
 SRC=$(wildcard *.cpp)
 OBJ=$(SRC:%.cpp=%.o)
@@ -13,7 +13,7 @@ all: $(OBJ)
 
 	
 run: all
-	./linker ./given_inputs/input-1
+	./$BIN ./given_inputs/input-1
 
 clean:
 	rm -f *.o
