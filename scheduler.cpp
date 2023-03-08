@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <iostream>
+#include <exception>
 
 Scheduler::Scheduler()
 {
@@ -26,6 +27,8 @@ SCHEDULER_TYPE Scheduler::parse_type(const char *char_str)
         return PRIO;
     case 'E':
         return PREPRIO;
+    default:
+        throw "Type of scheduler must be F, L, S, R, P or E";
     }
 }
 
