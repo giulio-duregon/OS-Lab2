@@ -1,0 +1,17 @@
+#ifndef ENUM_TYPES_H
+#define ENUM_TYPES_H
+
+enum EVENT_STATES
+{
+    TRANS_TO_READY,
+    TRANS_TO_PREEMPT,
+    TRANS_TO_RUN,
+    TRANS_TO_BLOCK
+};
+
+enum PROCESS_STATES
+{
+    STATE_RUNNING,
+    STATE_BLOCKED
+};
+#endif
