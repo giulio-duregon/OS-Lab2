@@ -10,6 +10,9 @@
 extern bool v;
 extern bool t;
 extern bool p;
+int randvals[];
+int ofs;
+int myrandom(int burst) { return 1 + (randvals[ofs] % burst); }
 
 int main(int argc, char **argv)
 {
@@ -93,7 +96,6 @@ int main(int argc, char **argv)
     {
         while (getline(input_file, line))
         {
-            std::cout << line << std::endl;
             int arrival_time = 0;
             int total_cpu_time = 0;
             int cpu_burst = 0;
