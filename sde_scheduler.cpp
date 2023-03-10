@@ -5,14 +5,16 @@
 #include <getopt.h>
 #include "desLayer.h"
 #include "event.hpp"
+#include "process.hpp"
 
-bool v;
+extern bool v;
 extern bool t;
+extern bool p;
 
 int main(int argc, char **argv)
 {
     // Initialize program arguments storage
-    bool t, e, p, i;
+    bool e, i;
     int c;
     char *s = nullptr;
     std::string inputfile_name;
@@ -84,9 +86,6 @@ int main(int argc, char **argv)
 
     Event first(TRANS_TO_BLOCK);
     Event second(TRANS_TO_PREEMPT);
-
-    first.display();
-    second.display();
 
     std::cout << v << std::endl;
     return 0;

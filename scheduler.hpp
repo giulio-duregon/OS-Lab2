@@ -4,6 +4,8 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
+// For state transitions
+bool v;
 enum SCHEDULER_TYPE
 {
     FCFS,

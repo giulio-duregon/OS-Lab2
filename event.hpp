@@ -23,11 +23,10 @@ char *GET_EVENT_ENUM_NAME(int enum_code)
     return event_arr[enum_code];
 }
 
-int dotrace = 4;
 #define trace(fmt...)       \
     do                      \
     {                       \
-        if (dotrace > 3)    \
+        if (t)              \
         {                   \
             printf(fmt);    \
             fflush(stdout); \
@@ -58,11 +57,8 @@ public:
     Event(EVENT_STATES event_state)
     {
         _event_state = event_state;
-        if (t)
-        {
-            std::cout << "here in v" << std::endl;
-            display();
-        }
+        // only runs if t=true;
+        display();
     };
     EVENT_STATES get_event_state() { return _event_state; };
     void display() { trace("[%-20s]: Event Number: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _event_state, GET_EVENT_ENUM_NAME(_event_state)); };
