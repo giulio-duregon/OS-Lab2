@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     int c;
     char *s = nullptr;
     std::string inputfile_name;
+    std::string line;
     std::string randfile_name;
     Scheduler scheduler_builder;
 
@@ -87,6 +88,21 @@ int main(int argc, char **argv)
     Event first(TRANS_TO_BLOCK);
     Event second(TRANS_TO_PREEMPT);
 
-    std::cout << v << std::endl;
+    std::ifstream input_file(inputfile_name);
+    if (input_file.is_open())
+    {
+        while (getline(input_file, line))
+        {
+            std::cout << line << std::endl;
+            int arrival_time = 0;
+            int total_cpu_time = 0;
+            int cpu_burst = 0;
+            int io_burst = 0;
+            sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
+            Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
+        }
+        input_file.close();
+    }
+
     return 0;
 }

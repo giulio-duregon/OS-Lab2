@@ -39,11 +39,11 @@ class Process
 public:
     Process(int at, int tc, int cb, int io)
     {
-        id = counter++;
         _arrival_time = at;
         _total_cpu_time = tc;
         _cpu_burst = cb;
         _io_burst = io;
+        id = counter++;
         set_process_state(STATE_CREATED);
 
         // Only runs if p = true;
@@ -60,7 +60,14 @@ public:
 
     void display()
     {
-        trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s\n", __PRETTY_FUNCTION__, id, _process_state, GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state));
+        trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
+              id,
+              _process_state,
+              GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state),
+              _arrival_time,
+              _total_cpu_time,
+              _cpu_burst,
+              _io_burst);
     }
 
 private:
