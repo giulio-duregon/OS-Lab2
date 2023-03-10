@@ -5,7 +5,7 @@
 // Constructors
 DES_Layer::DES_Layer()
 {
-    name = __func__;
+    name = __FUNCTION__;
 };
 
 DES_Layer::DES_Layer(bool v)
