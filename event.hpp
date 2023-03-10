@@ -3,7 +3,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-bool e;
+bool t;
 
 enum EVENT_STATES
 {
@@ -58,7 +58,7 @@ public:
     Event(EVENT_STATES event_state)
     {
         _event_state = event_state;
-        if (e)
+        if (t)
         {
             std::cout << "here in v" << std::endl;
             display();

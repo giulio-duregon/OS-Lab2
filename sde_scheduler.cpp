@@ -7,7 +7,7 @@
 #include "event.hpp"
 
 bool v;
-extern bool e;
+extern bool t;
 
 int main(int argc, char **argv)
 {
