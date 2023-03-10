@@ -50,11 +50,10 @@ int main(int argc, char **argv)
     inputfile_name = argv[optind];
     randfile_name = argv[optind + 1];
 
-    // sscanf(s, "%d:%d", &quantum_p, &maxprio_p);
-
     // Parse the type and set the scheduler
     scheduler_builder.set_scheduler_type(s);
     SCHEDULER_TYPE type = scheduler_builder.get_type();
+
     printf("Enum Type: %s, Numerical Type: %d\n", GET_ENUM_NAME(type), type);
 
     // TO DELETE LATER:
