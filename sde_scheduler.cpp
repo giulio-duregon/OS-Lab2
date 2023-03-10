@@ -3,6 +3,7 @@
 #include <string>
 #include "scheduler.h"
 #include <getopt.h>
+#include "desLayer.h"
 
 int main(int argc, char **argv)
 {
@@ -71,5 +72,12 @@ int main(int argc, char **argv)
     // rfile.open(rfile_name);
     // rfile >> r_array_size;
     // std::cout << "r_array_size=" << r_array_size << std::endl;
+
+    DES_Layer event_vec(v);
+
+    event_vec.add_to_vec(1);
+    event_vec.add_to_vec(2);
+    event_vec.trace();
+
     return 0;
 }
