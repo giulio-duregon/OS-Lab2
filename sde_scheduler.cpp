@@ -4,11 +4,15 @@
 #include "scheduler.h"
 #include <getopt.h>
 #include "desLayer.h"
+#include "event.hpp"
+
+bool v;
+extern bool e;
 
 int main(int argc, char **argv)
 {
     // Initialize program arguments storage
-    bool v, t, e, p, i;
+    bool t, e, p, i;
     int c;
     char *s = nullptr;
     std::string inputfile_name;
@@ -77,7 +81,13 @@ int main(int argc, char **argv)
 
     event_vec.add_to_vec(1);
     event_vec.add_to_vec(2);
-    event_vec.trace();
 
+    Event first(TRANS_TO_BLOCK);
+    Event second(TRANS_TO_PREEMPT);
+
+    first.display();
+    second.display();
+
+    std::cout << v << std::endl;
     return 0;
 }

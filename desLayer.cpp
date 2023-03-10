@@ -5,8 +5,8 @@
 // Constructors
 DES_Layer::DES_Layer()
 {
-    name = __FUNCTION__;
-};
+    name = __func__;
+}
 
 DES_Layer::DES_Layer(bool v)
 {
@@ -15,7 +15,7 @@ DES_Layer::DES_Layer(bool v)
         _v = true;
     }
     name = __func__;
-};
+}
 
 void DES_Layer::add_to_vec(int val)
 {
@@ -24,19 +24,19 @@ void DES_Layer::add_to_vec(int val)
     {
         printf("vec_arr.push_back(%d)\n", val);
     }
-};
+}
 void DES_Layer::trace()
 {
     printf("Class Name: %s\n", name);
     print_contents();
-};
+}
 
 void DES_Layer::print_contents()
 {
     int i = 0;
     for (auto val : vec_arr)
     {
-        printf("Element %d: %d\n", i, val);
+        printf("Element %d: %d", i, val);
         i++;
     }
 }

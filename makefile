@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-g -std=c++11 -Wall -pedantic -lstdc++
+CXXFLAGS=-g -std=c++11 -Wall -pedantic -lstdc++ -Wvariadic-macros
 BIN=sde_scheduler
 
 SRC=$(wildcard *.cpp)
