@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "scheduler.h"
+#include "scheduler.hpp"
 #include <getopt.h>
 #include "desLayer.h"
 #include "event.hpp"
