@@ -1,5 +1,6 @@
 #include <iostream>
 #include <exception>
+#include "process.hpp"
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
@@ -20,18 +21,20 @@ char *GET_ENUM_NAME(int enum_code)
 
 {
     static char *enum_name[] = {
-        "FCFS",
-        "LCFS",
-        "SRTF",
-        "RR",
-        "PRIO",
-        "PREPRIO"};
+        (char *)"FCFS",
+        (char *)"LCFS",
+        (char *)"SRTF",
+        (char *)"RR",
+        (char *)"PRIO",
+        (char *)"PREPRIO"};
     return enum_name[enum_code];
 }
 
 class Scheduler
 {
 public:
+    void add_process(){};
+    void get_next_process(){};
     Scheduler(){};
     SCHEDULER_TYPE parse_type(const char *char_str)
     {
@@ -88,6 +91,16 @@ private:
         }
         printf("quantum: %d, maxprio: %d\n", quantum, maxprio);
     }
+};
+
+class FIFO_Scheduler : Scheduler
+{
+public:
+    void add_process(){};
+    void get_next_process(){};
+    std::deque<Process *> RUN_QUEUE;
+
+private:
 };
 
 #endif

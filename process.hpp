@@ -26,10 +26,10 @@ enum PROCESS_STATES
 char *GET_PROCESS_STATE_NAME_FROM_ENUM(int enum_code)
 {
     static char *enum_arr[] = {
-        "STATE_CREATED",
-        "STATE_READY",
-        "STATE_RUNNING",
-        "STATE_BLOCKED"};
+        (char *)"STATE_CREATED",
+        (char *)"STATE_READY",
+        (char *)"STATE_RUNNING",
+        (char *)"STATE_BLOCKED"};
     return enum_arr[enum_code];
 }
 class Process

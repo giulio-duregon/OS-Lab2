@@ -16,22 +16,22 @@ enum EVENT_STATES
 char *GET_EVENT_ENUM_NAME(int enum_code)
 {
     static char *event_arr[] = {
-        "TRANS_TO_READY",
-        "TRANS_TO_PREEMPT",
-        "TRANS_TO_RUN",
-        "TRANS_TO_BLOCK"};
+        (char *)"TRANS_TO_READY",
+        (char *)"TRANS_TO_PREEMPT",
+        (char *)"TRANS_TO_RUN",
+        (char *)"TRANS_TO_BLOCK"};
     return event_arr[enum_code];
 }
 
-#define trace(fmt...)       \
-    do                      \
-    {                       \
-        if (t)              \
-        {                   \
-            printf(fmt);    \
-            fflush(stdout); \
-        }                   \
-    } while (0)
+// #define trace(fmt...)       \
+//     do                      \
+//     {                       \
+//         if (t)              \
+//         {                   \
+//             printf(fmt);    \
+//             fflush(stdout); \
+//         }                   \
+//     } while (0)
 
 class AbstractEvent
 {
