@@ -26,7 +26,7 @@ public:
             Event *temp = *it;
             if (_v)
             {
-                trace("[40-%s], Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
+                trace("[40-%s], Inserting Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
             }
 
             if (to_add->get_timestamp() < temp->get_timestamp())

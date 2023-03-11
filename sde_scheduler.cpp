@@ -11,9 +11,8 @@
 extern bool v;
 extern bool t;
 extern bool p;
-int randvals[5];
 int ofs;
-int myrandom(int burst) { return 1 + (randvals[ofs] % burst); }
+int rand_burst(int burst, int *randvals, int &offset) { return 1 + (randvals[offset++] % burst); }
 
 int main(int argc, char **argv)
 {
@@ -79,11 +78,19 @@ int main(int argc, char **argv)
 
     // TODO: Initialize random arr
     //  Gets the first value of the rfile, which is the array size needed inthe scheduler
-    //  int r_array_size;
-    //  std::ifstream rfile;
-    //  rfile.open(rfile_name);
-    //  rfile >> r_array_size;
-    //  std::cout << "r_array_size=" << r_array_size << std::endl;
+    int r_array_size;
+    std::ifstream rfile;
+    rfile.open(randfile_name);
+    rfile >> r_array_size;
+    std::cout << "r_array_size=" << r_array_size << std::endl;
+    int offset = 0;
+    int *randvals{new int[r_array_size]{}};
+    for (int i = 0; i < r_array_size; i++)
+    {
+        rfile >> randvals[i];
+    }
+
+    // How to Call: rand_burst(10, randvals, offset)
 
     // Read in input from file -> make process -> make event -> add to event deque
     std::ifstream input_file(inputfile_name);
@@ -106,9 +113,6 @@ int main(int argc, char **argv)
         }
         input_file.close();
     }
-
-    // TODO: Delete
-    des_layer.print_contents();
 
     return 0;
 }
