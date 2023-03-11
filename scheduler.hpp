@@ -96,8 +96,35 @@ private:
 class FIFO_Scheduler : Scheduler
 {
 public:
-    void add_process(){};
-    void get_next_process(){};
+    void add_process(Process *to_add)
+    {
+        std::deque<Process *>::iterator it;
+        for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
+        {
+            Process *temp = *it;
+            if (to_add->get_process_id() < temp->get_process_id())
+            {
+                RUN_QUEUE.insert(it, to_add);
+                return;
+            }
+        }
+        RUN_QUEUE.push_back(to_add);
+        return;
+    };
+
+    Process *get_next_process()
+    {
+        if (RUN_QUEUE.size() >= 1)
+        {
+            Process *next_process = RUN_QUEUE.front();
+            RUN_QUEUE.pop_front();
+            return next_process;
+        }
+        else
+        {
+            return nullptr;
+        }
+    };
     std::deque<Process *> RUN_QUEUE;
 
 private:

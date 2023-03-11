@@ -113,6 +113,15 @@ int main(int argc, char **argv)
         }
         input_file.close();
     }
+    bool CALL_SCHEDULER;
+    Event *curr_event = des_layer.get_event();
+    Process *curr_process = curr_event->get_process();
+    current_time = curr_event->get_timestamp();
+    int transition = curr_event->get_event_state();
+    int timeInPrevState = current_time - curr_process->get_remaining_time();
+    delete curr_event;
+    curr_event = nullptr;
 
+    printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", current_time, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
     return 0;
 }
