@@ -32,3 +32,5 @@
 *.app
 .DS_Store
 OS-Lab2.code-workspace
+tester.cpp
+tester
