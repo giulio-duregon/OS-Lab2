@@ -75,6 +75,8 @@ public:
         return _process;
     }
 
+    int get_timestamp() { return _timestamp; }
+
 private:
     int _timestamp;
     Process *_process;

@@ -99,10 +99,12 @@ int main(int argc, char **argv)
             current_time += arrival_time;
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
             Event *event = new Event(current_time, process, TRANS_TO_READY, TRANS_TO_READY);
-            des_layer.push_back(event);
+            des_layer.put_event(event);
         }
         input_file.close();
     }
+
+    des_layer.print_contents();
 
     return 0;
 }

@@ -17,24 +17,47 @@ public:
         }
         name = __func__;
     }
-    void push_back(Event *event)
+    void put_event(Event *to_add)
     {
-        event_layer.push_front(event);
-        if (_v)
+        std::deque<Event *>::iterator it;
+
+        for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
-            trace("[40-%s], Event Id: %d", __PRETTY_FUNCTION__, event->get_process()->get_process_id());
+            Event *temp = *it;
+            if (_v)
+            {
+                trace("[40-%s], Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
+            }
+
+            if (to_add->get_timestamp() < temp->get_timestamp())
+            {
+                event_layer.insert(it, to_add);
+                return;
+            }
+
+            if (to_add->get_timestamp() == temp->get_timestamp())
+            {
+                if (to_add->get_process()->get_process_id() < temp->get_process()->get_process_id())
+                {
+                    event_layer.insert(it, to_add);
+                    return;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
         }
     }
 
-    int *getNextEvent()
+    Event *get_event()
     {
         event_layer.pop_front();
     }
-
-private:
-    std::deque<Event *> event_layer;
-    bool _v;
-    const char *name;
     void print_contents()
     {
         int i = 0;
@@ -44,6 +67,11 @@ private:
             i++;
         }
     }
+
+private:
+    std::deque<Event *> event_layer;
+    bool _v;
+    const char *name;
 };
 
 #endif
