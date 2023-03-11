@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "process.hpp"
 #ifndef EVENT_H
 #define EVENT_H
 
@@ -51,20 +51,29 @@ public:
 };
 
 int AbstractEvent::counter = 0;
+
 class Event : public AbstractEvent
 {
 public:
-    Event(EVENT_STATES event_state)
+    Event(int timestamp, Process *process, EVENT_STATES oldstate, EVENT_STATES newstate)
     {
-        _event_state = event_state;
+
+        _timestamp = timestamp;
+        _oldstate = oldstate;
+        _newstate = newstate;
+        _process = process;
         // only runs if t=true;
         display();
     };
-    EVENT_STATES get_event_state() { return _event_state; };
-    void display() { trace("[%-20s]: Event Number: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _event_state, GET_EVENT_ENUM_NAME(_event_state)); };
+    EVENT_STATES get_event_state() { return _newstate; };
+
+    void display() { trace("[%-20s]: Event Number: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
 
 private:
-    EVENT_STATES _event_state;
+    int _timestamp;
+    Process *_process;
+    EVENT_STATES _oldstate;
+    EVENT_STATES _newstate;
 };
 
 #endif

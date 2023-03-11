@@ -10,7 +10,7 @@
 extern bool v;
 extern bool t;
 extern bool p;
-int randvals[];
+int randvals[5];
 int ofs;
 int myrandom(int burst) { return 1 + (randvals[ofs] % burst); }
 
@@ -83,14 +83,8 @@ int main(int argc, char **argv)
     // rfile >> r_array_size;
     // std::cout << "r_array_size=" << r_array_size << std::endl;
 
-    DES_Layer event_vec(v);
-
-    event_vec.add_to_vec(1);
-    event_vec.add_to_vec(2);
-
-    Event first(TRANS_TO_BLOCK);
-    Event second(TRANS_TO_PREEMPT);
-
+    std::vector<Event *> event_q;
+    int current_time = 0;
     std::ifstream input_file(inputfile_name);
     if (input_file.is_open())
     {
@@ -101,7 +95,10 @@ int main(int argc, char **argv)
             int cpu_burst = 0;
             int io_burst = 0;
             sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
+            current_time += arrival_time;
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
+            Event *event = new Event(current_time, process, TRANS_TO_READY, TRANS_TO_READY);
+            event_q.push_back(event);
         }
         input_file.close();
     }
