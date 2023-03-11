@@ -76,6 +76,7 @@ public:
     }
 
     int get_timestamp() { return _timestamp; }
+    int get_process_id() { return _process_id; }
 
 private:
     int _timestamp;

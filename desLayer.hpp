@@ -52,18 +52,24 @@ public:
                 continue;
             }
         }
+        event_layer.push_back(to_add);
+        return;
     }
 
     Event *get_event()
     {
         event_layer.pop_front();
     }
+
     void print_contents()
     {
+        std::cout << event_layer.size() << std::endl;
+        std::deque<Event *>::iterator it;
         int i = 0;
-        for (auto event : event_layer)
+        for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
-            printf("Element %d: %d", i, event->get_process()->get_process_id());
+            Event *temp = *it;
+            trace("Element %d: %d\n", i, temp->get_process_id());
             i++;
         }
     }
