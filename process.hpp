@@ -41,6 +41,8 @@ public:
     {
         _arrival_time = at;
         _total_cpu_time = tc;
+        _remaining_cpu_time = tc;
+        _last_trans_time = _arrival_time;
         _cpu_burst = cb;
         _io_burst = io;
         id = counter++;
@@ -49,6 +51,21 @@ public:
         // Only runs if p = true;
         display();
     }
+
+    int get_remaining_time()
+    {
+        return _remaining_cpu_time;
+    }
+
+    int get_last_trans_time()
+    {
+        return _last_trans_time;
+    };
+
+    void set_last_trans_time(int time)
+    {
+        _last_trans_time = time;
+    };
 
     int get_process_id()
     {
@@ -63,6 +80,21 @@ public:
         Process::_process_state = new_process_state;
     }
 
+    void increment_io_time(int time)
+    {
+        _total_io_time += time;
+    }
+
+    void increment_cpu_wait_time(int time)
+    {
+        _cpu_waiting_time += time;
+    }
+
+    void set_ft_and_tt(int time)
+    {
+        _finish_time = time;
+        _turnaround_time = _arrival_time - _finish_time;
+    }
     void display()
     {
         trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
@@ -76,7 +108,16 @@ public:
     }
 
 private:
+    // Variables used for accounting
+    int _remaining_cpu_time;
+    int _last_trans_time;
+    int _finish_time;
+    int _turnaround_time;
+    int _cpu_waiting_time = 0;
+    int _total_io_time = 0;
     int id;
+
+    // Variables read in from input
     PROCESS_STATES _process_state;
     int _arrival_time;
     int _total_cpu_time;
