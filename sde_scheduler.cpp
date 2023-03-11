@@ -1,9 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "scheduler.hpp"
 #include <getopt.h>
-#include "desLayer.h"
+
+#include "scheduler.hpp"
+#include "desLayer.hpp"
 #include "event.hpp"
 #include "process.hpp"
 
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
     // rfile >> r_array_size;
     // std::cout << "r_array_size=" << r_array_size << std::endl;
 
-    std::vector<Event *> event_q;
+    DES_Layer des_layer;
     int current_time = 0;
     std::ifstream input_file(inputfile_name);
     if (input_file.is_open())
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
             current_time += arrival_time;
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
             Event *event = new Event(current_time, process, TRANS_TO_READY, TRANS_TO_READY);
-            event_q.push_back(event);
+            des_layer.push_back(event);
         }
         input_file.close();
     }

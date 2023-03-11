@@ -49,6 +49,11 @@ public:
         // Only runs if p = true;
         display();
     }
+
+    int get_process_id()
+    {
+        return id;
+    }
     PROCESS_STATES get_process_state()
     {
         return _process_state;

@@ -62,6 +62,7 @@ public:
         _oldstate = oldstate;
         _newstate = newstate;
         _process = process;
+        _process_id = process->get_process_id();
         // only runs if t=true;
         display();
     };
@@ -69,9 +70,15 @@ public:
 
     void display() { trace("[%-20s]: Event Number: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
 
+    Process *get_process()
+    {
+        return _process;
+    }
+
 private:
     int _timestamp;
     Process *_process;
+    int _process_id;
     EVENT_STATES _oldstate;
     EVENT_STATES _newstate;
 };
