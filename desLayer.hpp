@@ -76,6 +76,12 @@ public:
         }
     }
 
+    int get_next_event_time()
+    {
+        Event *next_event = event_layer.front();
+        return next_event->get_timestamp();
+    }
+
 private:
     std::deque<Event *> event_layer;
     bool _v;

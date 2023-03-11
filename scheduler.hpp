@@ -33,9 +33,10 @@ char *GET_ENUM_NAME(int enum_code)
 class Scheduler
 {
 public:
-    void add_process(){};
-    void get_next_process(){};
+    virtual void add_process(Process *process_to_add){};
+    virtual Process *get_next_process(){};
     Scheduler(){};
+
     SCHEDULER_TYPE parse_type(const char *char_str)
     {
         switch (*char_str)
@@ -56,7 +57,7 @@ public:
             throw "Type of scheduler must be F, L, S, R, P or E";
         }
     }
-    Scheduler build_scheduler() { return Scheduler(); };
+    Scheduler *build_scheduler() { return new Scheduler; };
     void set_scheduler_type(const char *s)
     {
         // Get / Set type of scheduler based on first character

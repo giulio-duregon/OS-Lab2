@@ -23,16 +23,6 @@ char *GET_EVENT_ENUM_NAME(int enum_code)
     return event_arr[enum_code];
 }
 
-// #define trace(fmt...)       \
-//     do                      \
-//     {                       \
-//         if (t)              \
-//         {                   \
-//             printf(fmt);    \
-//             fflush(stdout); \
-//         }                   \
-//     } while (0)
-
 class AbstractEvent
 {
     static int counter;
@@ -68,7 +58,7 @@ public:
     };
     EVENT_STATES get_event_state() { return _newstate; };
 
-    void display() { trace("[%-20s]: Event Number: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
+    void display() { trace("[%-20s]: Event Number: %d Event Time: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _timestamp, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
 
     Process *get_process()
     {

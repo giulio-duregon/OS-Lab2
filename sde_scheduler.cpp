@@ -20,7 +20,8 @@ int main(int argc, char **argv)
     bool e, i;
     int c;
     char *s = nullptr;
-    int current_time = 0;
+    int CURRENT_TIME = 0;
+    Process *CURRENT_RUNNING_PROCESS = nullptr;
     std::string inputfile_name;
     std::string line;
     std::string randfile_name;
@@ -104,24 +105,74 @@ int main(int argc, char **argv)
             int cpu_burst = 0;
             int io_burst = 0;
             sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
-            current_time += arrival_time;
+            CURRENT_TIME += arrival_time;
 
             // Create process / event, add to event deque
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
-            Event *event = new Event(current_time, process, TRANS_TO_READY, TRANS_TO_READY);
+            Event *event = new Event(arrival_time, process, TRANS_TO_READY, TRANS_TO_READY);
             des_layer.put_event(event);
         }
         input_file.close();
     }
+    Scheduler *THE_SCHEDULER = scheduler_builder.build_scheduler();
     bool CALL_SCHEDULER;
-    Event *curr_event = des_layer.get_event();
-    Process *curr_process = curr_event->get_process();
-    current_time = curr_event->get_timestamp();
-    int transition = curr_event->get_event_state();
-    int timeInPrevState = current_time - curr_process->get_remaining_time();
-    delete curr_event;
-    curr_event = nullptr;
+    Event *curr_event;
 
-    printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", current_time, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
+    while ((curr_event = des_layer.get_event()))
+    {
+        Process *curr_process = curr_event->get_process();
+        CURRENT_TIME = curr_event->get_timestamp();
+        int transition = curr_event->get_event_state();
+        int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
+        delete curr_event;
+        curr_event = nullptr;
+        if (v)
+        {
+            printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", CURRENT_TIME, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
+        }
+
+        switch (transition)
+        {
+        case TRANS_TO_READY:
+            // must come from BLOCKED or CREATED
+            // add to run queue, no event created
+            CALL_SCHEDULER = true;
+            break;
+
+        case TRANS_TO_PREEMPT:
+            // must come from RUNNING (preemption)
+            // add to runqueue (no event is generated)
+            CALL_SCHEDULER = true;
+            break;
+
+        case TRANS_TO_RUN:
+            // create event for either preemption or blocking
+            break;
+
+        case TRANS_TO_BLOCK:
+            // create an event for when process becomes READY again
+            CALL_SCHEDULER = true;
+            break;
+        }
+
+        if (CALL_SCHEDULER)
+        {
+            if (des_layer.get_next_event_time() == CURRENT_TIME)
+            {
+                // process next event from Event queue
+                continue;
+            }
+            // Reset global flag
+            CALL_SCHEDULER = false;
+            if (CURRENT_RUNNING_PROCESS == nullptr)
+            {
+                CURRENT_RUNNING_PROCESS = THE_SCHEDULER->get_next_process();
+                if (CURRENT_RUNNING_PROCESS == nullptr)
+                    continue;
+                // create event to make this process runnable for same time.
+            }
+        }
+    }
+
     return 0;
 }
