@@ -37,6 +37,14 @@ public:
     virtual Process *get_next_process(){};
     Scheduler(){};
 
+    bool does_preemt()
+    {
+        if (_scheduler_type == PREPRIO)
+        {
+            return true;
+        }
+        return false;
+    }
     SCHEDULER_TYPE parse_type(const char *char_str)
     {
         switch (*char_str)
