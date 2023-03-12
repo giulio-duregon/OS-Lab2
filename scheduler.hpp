@@ -65,7 +65,7 @@ public:
             throw "Type of scheduler must be F, L, S, R, P or E";
         }
     }
-    Scheduler *build_scheduler() { return new Scheduler; };
+
     void set_scheduler_type(const char *s)
     {
         // Get / Set type of scheduler based on first character
@@ -139,4 +139,12 @@ public:
 private:
 };
 
+Scheduler *build_scheduler(SCHEDULER_TYPE type)
+{
+    switch (type)
+    {
+    case FCFS:
+        return (Scheduler *)new FIFO_Scheduler;
+    };
+};
 #endif

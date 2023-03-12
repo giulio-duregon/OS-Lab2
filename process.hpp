@@ -47,7 +47,7 @@ public:
         _io_burst = io;
         id = counter++;
         set_process_state(STATE_CREATED);
-
+        set_old_process_state(STATE_CREATED);
         // Only runs if p = true;
         display();
     }
@@ -75,9 +75,18 @@ public:
     {
         return _process_state;
     }
+    PROCESS_STATES get_old_process_state()
+    {
+        return _old_process_state;
+    }
     void set_process_state(PROCESS_STATES new_process_state)
     {
-        Process::_process_state = new_process_state;
+        _process_state = new_process_state;
+    }
+
+    void set_old_process_state(PROCESS_STATES new_process_state)
+    {
+        _old_process_state = new_process_state;
     }
 
     void increment_io_time(int time)
@@ -119,6 +128,7 @@ private:
 
     // Variables read in from input
     PROCESS_STATES _process_state;
+    PROCESS_STATES _old_process_state;
     int _arrival_time;
     int _total_cpu_time;
     int _cpu_burst;

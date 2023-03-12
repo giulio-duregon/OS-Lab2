@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <getopt.h>
-
+#include <cassert>
 #include "scheduler.hpp"
 #include "desLayer.hpp"
 #include "event.hpp"
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
         }
         input_file.close();
     }
-    Scheduler *THE_SCHEDULER = scheduler_builder.build_scheduler();
+    Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
     bool CALL_SCHEDULER;
     Event *curr_event;
 
@@ -135,13 +135,25 @@ int main(int argc, char **argv)
         {
         case TRANS_TO_READY:
             // must come from BLOCKED or CREATED
+            assert((curr_process->get_old_process_state() == STATE_CREATED) || (curr_process->get_old_process_state() == STATE_BLOCKED));
+
+            // Transition state to ready
+            curr_process->set_old_process_state(curr_process->get_process_state());
+            curr_process->set_process_state(STATE_READY);
             // add to run queue, no event created
+            THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
             break;
 
         case TRANS_TO_PREEMPT:
             // must come from RUNNING (preemption)
+            assert(curr_process->get_old_process_state() == (STATE_RUNNING));
+
+            // Transition state to ready
+            curr_process->set_old_process_state(curr_process->get_process_state());
+            curr_process->set_process_state(STATE_READY);
             // add to runqueue (no event is generated)
+            THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
             break;
 
