@@ -7,6 +7,7 @@ bool t;
 
 enum EVENT_STATES
 {
+    TRANS_TO_CREATED,
     TRANS_TO_READY,
     TRANS_TO_PREEMPT,
     TRANS_TO_RUN,
@@ -16,6 +17,7 @@ enum EVENT_STATES
 char *GET_EVENT_ENUM_NAME(int enum_code)
 {
     static char *event_arr[] = {
+        (char *)"TRANS_TO_CREATED",
         (char *)"TRANS_TO_READY",
         (char *)"TRANS_TO_PREEMPT",
         (char *)"TRANS_TO_RUN",
@@ -67,6 +69,7 @@ public:
 
     int get_timestamp() { return _timestamp; }
     int get_process_id() { return _process_id; }
+    int get_old_state() { return _oldstate; }
 
 private:
     int _timestamp;
