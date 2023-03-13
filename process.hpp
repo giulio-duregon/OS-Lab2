@@ -121,19 +121,41 @@ public:
               _io_burst);
     }
 
+    int get_prio()
+    {
+        return _prio;
+    };
+    void set_prio(int prio)
+    {
+        _prio = prio;
+    }
     int get_io_burst()
     {
         return _io_burst;
     }
 
+    void update_post_cpu_burst(int curr_time_of_update, int cpu_burst)
+    {
+
+        _last_trans_time = curr_time_of_update;
+        _remaining_cpu_time -= cpu_burst;
+        if (_remaining_cpu_time <= 0)
+        {
+            // may have to check if this still works
+            _turnaround_time = _arrival_time - curr_time_of_update + cpu_burst;
+        }
+        return;
+    }
+
 private:
     // Variables used for accounting
     int _remaining_cpu_time;
-    int _last_trans_time;
+    int _last_trans_time = 0;
     int _finish_time;
     int _turnaround_time;
     int _cpu_waiting_time = 0;
     int _total_io_time = 0;
+    int _prio = 0;
     int id;
 
     // Variables read in from input

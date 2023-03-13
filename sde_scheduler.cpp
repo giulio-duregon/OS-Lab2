@@ -163,16 +163,28 @@ int main(int argc, char **argv)
         case TRANS_TO_RUN:
             assert(curr_process->get_old_process_state() == (STATE_READY));
             stat_gen_burst = rand_burst(curr_process->get_burst(), randvals, offset);
-            printf("Time: %d Process Id: %d CPU Burst: %d\n", CURRENT_TIME, curr_process->get_process_id(), stat_gen_burst);
+            printf("Time: %d Process Id: %d Time in Last State: %d cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, stat_gen_burst, curr_process->get_remaining_time(), curr_process->get_prio());
             // create event for either preemption or blocking
-            event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
+            curr_process->update_post_cpu_burst(CURRENT_TIME, stat_gen_burst);
+
+            // TODO: Use quantum /burst for preemption, for now just think of blocking
+
+            // Do we add event if remaining time < 0?
+            if (curr_process->get_remaining_time() > 0)
+            {
+                event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
+                des_layer.put_event(event_to_add);
+            }
+
+            // TODO: Maybe save finished processes somewhere for easy printing
+
             break;
 
         case TRANS_TO_BLOCK:
             assert(curr_process->get_old_process_state() == (STATE_RUNNING));
             // create an event for when process becomes READY again
             io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset);
-            printf("Time: %d Process Id: %d CPU Burst Ran: %d RUN->Block ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), curr_process->get_last_trans_time(), io_burst, curr_process->get_remaining_time());
+            printf("Time: %d Process Id: %d CPU Burst Ran: %d RUN->Block ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
             CALL_SCHEDULER = true;
             break;
         }
