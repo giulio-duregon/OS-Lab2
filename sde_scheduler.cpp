@@ -21,10 +21,10 @@ int update_offset(int &offset, int array_size)
 int rand_burst(int burst, int *randvals, int &offset, int array_size)
 {
     // Grab random value
-    int rand_val = randvals[offset];
+    int rand_val = (randvals[offset] % burst);
     // Update offest using helper function
     update_offset(offset, array_size);
-    return 1 + (rand_val % burst);
+    return rand_val;
 }
 
 int main(int argc, char **argv)
@@ -34,7 +34,6 @@ int main(int argc, char **argv)
     bool e, i;
     int c;
     char *s = nullptr;
-    int CURRENT_TIME = 0;
     Process *CURRENT_RUNNING_PROCESS = nullptr;
     std::string inputfile_name;
     std::string line;
@@ -64,7 +63,6 @@ int main(int argc, char **argv)
             break;
 
         case 's':
-
             s = optarg;
             break;
 
@@ -116,40 +114,47 @@ int main(int argc, char **argv)
             int total_cpu_time = 0;
             int cpu_burst = 0;
             int io_burst = 0;
-            int static_prio = rand_burst(scheduler_builder.maxprio, randvals, offset, r_array_size);
+            int maxprio = scheduler_builder.maxprio;
+            int static_prio = rand_burst(maxprio, randvals, offset, r_array_size);
+
+            // Parse file input
             sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
-            CURRENT_TIME += arrival_time;
 
             // Create process / event, add to event deque
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
             process->set_static_prio(static_prio);
+            // TODO: Revisit this
+            process->set_dynamic_prio(static_prio);
+
+            // Create even and add it to the queue
             Event *event = new Event(arrival_time, process, TRANS_TO_READY, TRANS_TO_READY);
             des_layer.put_event(event);
         }
         input_file.close();
     }
+
+    // Create scheduler based on type passed through -s
     Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
+
+    // Helper variables for whole simulation
     bool CALL_SCHEDULER;
     Event *curr_event;
+    Event *transition_event_to_add;
+    Event *scheduler_event_to_add;
+    int io_burst = 0;
+    int cpu_burst = 0;
+    int rand_val = 0;
 
+    // Begin simulation
     while ((curr_event = des_layer.get_event()))
     {
-        Event *transition_event_to_add;
-        Event *scheduler_event_to_add;
-        int io_burst = 0;
-        int cpu_burst = 0;
-        int rand_val = 0;
+        // Helper vars per iteration
         Process *curr_process = curr_event->get_process();
-        CURRENT_TIME = curr_event->get_timestamp();
+        int CURRENT_TIME = curr_event->get_timestamp();
         int transition = curr_event->get_event_state();
         int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
         delete curr_event;
         curr_event = nullptr;
-
-        // if (v)
-        // {
-        //     printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", CURRENT_TIME, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
-        // }
 
         switch (transition)
         {
@@ -157,6 +162,10 @@ int main(int argc, char **argv)
             // must come from BLOCKED or CREATED
             assert((curr_process->get_old_process_state() == STATE_CREATED) || (curr_process->get_old_process_state() == STATE_BLOCKED));
 
+            if (v)
+            {
+                printf("%d %d %d CREATED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+            }
             // Transition state to ready
             curr_process->update_state(STATE_READY);
             // add to run queue, no event created
@@ -190,7 +199,7 @@ int main(int argc, char **argv)
             }
             if (v)
             {
-                printf("%d %d %d cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst, curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
+                printf("%d %d %d READY->RUN cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst, curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
             }
 
             // Update accounting / state of process
