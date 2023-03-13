@@ -141,7 +141,7 @@ public:
         _remaining_cpu_time -= cpu_burst;
 
         // Update prior and current state
-        update_state(STATE_RUNNING);
+        update_state(STATE_BLOCKED);
 
         if (_remaining_cpu_time <= 0)
         {
