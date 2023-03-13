@@ -142,8 +142,7 @@ public:
         _remaining_cpu_time -= cpu_burst;
 
         // Update prior and current state
-        _process_state = STATE_RUNNING;
-        _old_process_state = STATE_READY;
+        update_state(STATE_RUNNING);
 
         if (_remaining_cpu_time <= 0)
         {
@@ -159,8 +158,13 @@ public:
         _total_io_time += io_burst;
 
         // Update prior and current state
-        _process_state = STATE_BLOCKED;
-        _old_process_state = STATE_RUNNING;
+        update_state(STATE_BLOCKED);
+    }
+
+    void update_state(PROCESS_STATES new_state)
+    {
+        _old_process_state = _process_state;
+        _process_state = new_state;
     }
 
 private:

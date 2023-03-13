@@ -142,8 +142,7 @@ int main(int argc, char **argv)
             assert((curr_process->get_old_process_state() == STATE_CREATED) || (curr_process->get_old_process_state() == STATE_BLOCKED));
 
             // Transition state to ready
-            curr_process->set_old_process_state(curr_process->get_process_state());
-            curr_process->set_process_state(STATE_READY);
+            curr_process->update_state(STATE_READY);
             // add to run queue, no event created
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
@@ -165,7 +164,7 @@ int main(int argc, char **argv)
             assert(curr_process->get_old_process_state() == (STATE_READY));
             stat_gen_burst = rand_burst(curr_process->get_burst(), randvals, offset);
             printf("Time: %d Process Id: %d Time in Last State: %d cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, stat_gen_burst, curr_process->get_remaining_time(), curr_process->get_prio());
-            // create event for either preemption or blocking
+            // Update accounting / state of process
             curr_process->update_post_cpu_burst(CURRENT_TIME, stat_gen_burst);
 
             // TODO: Use quantum /burst for preemption, for now just think of blocking
@@ -173,6 +172,7 @@ int main(int argc, char **argv)
             // Do we add event if remaining time < 0?
             if (curr_process->get_remaining_time() > 0)
             {
+                // create event for either preemption or blocking
                 transition_event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
                 des_layer.put_event(transition_event_to_add);
             }
@@ -187,6 +187,9 @@ int main(int argc, char **argv)
             io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset);
             printf("Time: %d Process Id: %d CPU Burst Ran: %d RUN->Block ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
             CALL_SCHEDULER = true;
+
+            transition_event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_BLOCK, TRANS_TO_READY);
+            des_layer.put_event(transition_event_to_add);
             break;
         }
 
@@ -205,7 +208,9 @@ int main(int argc, char **argv)
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
                 // create event to make this process runnable for same time.
+                CURRENT_RUNNING_PROCESS->update_state(STATE_RUNNING);
                 scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, TRANS_TO_READY, TRANS_TO_RUN);
+                des_layer.put_event(scheduler_event_to_add);
             }
         }
     }
