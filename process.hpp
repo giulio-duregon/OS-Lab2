@@ -67,6 +67,11 @@ public:
         _last_trans_time = time;
     };
 
+    int get_burst()
+    {
+        return _cpu_burst;
+    }
+
     int get_process_id()
     {
         return id;
@@ -114,6 +119,11 @@ public:
               _total_cpu_time,
               _cpu_burst,
               _io_burst);
+    }
+
+    int get_io_burst()
+    {
+        return _io_burst;
     }
 
 private:

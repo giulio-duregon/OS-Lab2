@@ -120,6 +120,9 @@ int main(int argc, char **argv)
 
     while ((curr_event = des_layer.get_event()))
     {
+        Event *event_to_add;
+        int io_burst = 0;
+        int stat_gen_burst = 0;
         Process *curr_process = curr_event->get_process();
         CURRENT_TIME = curr_event->get_timestamp();
         int transition = curr_event->get_event_state();
@@ -158,11 +161,18 @@ int main(int argc, char **argv)
             break;
 
         case TRANS_TO_RUN:
+            assert(curr_process->get_old_process_state() == (STATE_READY));
+            stat_gen_burst = rand_burst(curr_process->get_burst(), randvals, offset);
+            printf("Time: %d Process Id: %d CPU Burst: %d\n", CURRENT_TIME, curr_process->get_process_id(), stat_gen_burst);
             // create event for either preemption or blocking
+            event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
             break;
 
         case TRANS_TO_BLOCK:
+            assert(curr_process->get_old_process_state() == (STATE_RUNNING));
             // create an event for when process becomes READY again
+            io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset);
+            printf("Time: %d Process Id: %d CPU Burst Ran: %d RUN->Block ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), curr_process->get_last_trans_time(), io_burst, curr_process->get_remaining_time());
             CALL_SCHEDULER = true;
             break;
         }
