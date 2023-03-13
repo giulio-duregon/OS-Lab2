@@ -120,7 +120,8 @@ int main(int argc, char **argv)
 
     while ((curr_event = des_layer.get_event()))
     {
-        Event *event_to_add;
+        Event *transition_event_to_add;
+        Event *scheduler_event_to_add;
         int io_burst = 0;
         int stat_gen_burst = 0;
         Process *curr_process = curr_event->get_process();
@@ -172,8 +173,8 @@ int main(int argc, char **argv)
             // Do we add event if remaining time < 0?
             if (curr_process->get_remaining_time() > 0)
             {
-                event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
-                des_layer.put_event(event_to_add);
+                transition_event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
+                des_layer.put_event(transition_event_to_add);
             }
 
             // TODO: Maybe save finished processes somewhere for easy printing
@@ -204,6 +205,7 @@ int main(int argc, char **argv)
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
                 // create event to make this process runnable for same time.
+                scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, TRANS_TO_READY, TRANS_TO_RUN);
             }
         }
     }

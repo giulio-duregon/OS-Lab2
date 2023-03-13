@@ -137,14 +137,30 @@ public:
     void update_post_cpu_burst(int curr_time_of_update, int cpu_burst)
     {
 
+        // Accounting
         _last_trans_time = curr_time_of_update;
         _remaining_cpu_time -= cpu_burst;
+
+        // Update prior and current state
+        _process_state = STATE_RUNNING;
+        _old_process_state = STATE_READY;
+
         if (_remaining_cpu_time <= 0)
         {
             // may have to check if this still works
             _turnaround_time = _arrival_time - curr_time_of_update + cpu_burst;
         }
-        return;
+    }
+
+    void update_post_io_burst(int curr_time_of_update, int io_burst)
+    {
+        // Accounting
+        _last_trans_time = curr_time_of_update;
+        _total_io_time += io_burst;
+
+        // Update prior and current state
+        _process_state = STATE_BLOCKED;
+        _old_process_state = STATE_RUNNING;
     }
 
 private:

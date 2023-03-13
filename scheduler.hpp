@@ -107,11 +107,13 @@ class FIFO_Scheduler : Scheduler
 public:
     void add_process(Process *to_add)
     {
+        set_process_prio(to_add);
+
         std::deque<Process *>::iterator it;
         for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
         {
             Process *temp = *it;
-            if (to_add->get_process_id() < temp->get_process_id())
+            if (to_add->get_prio() < temp->get_prio())
             {
                 RUN_QUEUE.insert(it, to_add);
                 return;
@@ -120,6 +122,14 @@ public:
         RUN_QUEUE.push_back(to_add);
         return;
     };
+
+    void set_process_prio(Process *process)
+    {
+        if (process->get_prio() == 0)
+        {
+            process->set_prio(process->get_process_id());
+        }
+    }
 
     Process *get_next_process()
     {

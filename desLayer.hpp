@@ -58,6 +58,11 @@ public:
 
     Event *get_event()
     {
+        if (event_layer.size() == 0)
+        {
+            return nullptr;
+        }
+
         Event *first = event_layer.front();
         event_layer.pop_front();
         return first;
