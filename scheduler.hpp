@@ -72,15 +72,11 @@ public:
         SCHEDULER_TYPE type = parse_type(s);
         _scheduler_type = type;
 
-        // See if we need to check for additional args
-        if ((_scheduler_type) == RR || (_scheduler_type == PRIO) || (_scheduler_type == PREPRIO))
-        {
-            // Increment pointer (get away from the character string)
-            s++;
+        // Increment pointer (get away from the character string)
+        s++;
 
-            // Fish out arguments
-            scan_optional(s);
-        }
+        // Fish out arguments
+        scan_optional(s);
     }
     SCHEDULER_TYPE get_type()
     {
@@ -94,7 +90,7 @@ private:
     void scan_optional(const char *s)
     {
         sscanf(s, "%d:%d", &quantum, &maxprio);
-        if ((maxprio == 0) && ((_scheduler_type == PRIO) || (_scheduler_type == PREPRIO)))
+        if (maxprio == 0)
         {
             maxprio = 4;
         }
