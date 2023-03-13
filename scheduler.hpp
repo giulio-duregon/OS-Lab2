@@ -101,15 +101,18 @@ private:
 class FIFO_Scheduler : Scheduler
 {
 public:
+    // FIFO Scheduler should add process based on id
+    // Id will determine the insert order
     void add_process(Process *to_add)
     {
+        printf("Adding process id: %d to run queue\n", to_add->get_process_id());
         set_process_dynamic_prio(to_add);
 
         std::deque<Process *>::iterator it;
         for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
         {
             Process *temp = *it;
-            if (to_add->get_dynamic_prio() < temp->get_dynamic_prio())
+            if (to_add->get_process_id() < temp->get_process_id())
             {
                 RUN_QUEUE.insert(it, to_add);
                 return;
@@ -132,7 +135,8 @@ public:
         if (RUN_QUEUE.size() >= 1)
         {
             Process *next_process = RUN_QUEUE.front();
-            RUN_QUEUE.pop_front();
+            printf("Retrieving process id: %d to run queue\n", next_process->get_process_id());
+            // RUN_QUEUE.pop_front();
             return next_process;
         }
         else
@@ -140,6 +144,12 @@ public:
             return nullptr;
         }
     };
+
+    void rm_next_process(Process *process)
+    {
+        printf("Removing process id: %d to run queue\n", process->get_process_id());
+        RUN_QUEUE.pop_front();
+    }
     std::deque<Process *> RUN_QUEUE;
 
 private:

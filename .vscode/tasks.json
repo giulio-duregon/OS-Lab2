@@ -19,7 +19,10 @@
                 "-stdlib=libc++",
                 "-g",
                 "${file}",
-                "tokenizer.o",
+                "process.o",
+                "event.o",
+                "scheduler.o",
+                "desLayer.o",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],
@@ -40,7 +43,7 @@
             "label": "make run",
             "command": "make",
             "args": [
-                "run"
+                "clean && make run"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -52,7 +55,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Giulio's custom task"
+            "detail": "Shell make run"
         }
     ]
 }

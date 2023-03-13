@@ -41,6 +41,7 @@ int main(int argc, char **argv)
     Scheduler scheduler_builder;
     DES_Layer des_layer;
 
+    std::cout << "Here" << std::endl;
     // Arg parsing
     while ((c = getopt(argc, argv, "vtepis:")) != -1)
     {
@@ -75,19 +76,20 @@ int main(int argc, char **argv)
 
     // Grab input file name, random file name
     inputfile_name = argv[optind];
+
     randfile_name = argv[optind + 1];
 
     // Sets type and max prio
     scheduler_builder.set_scheduler_type(s);
 
     // TODO: DELETE LATER:
-    // printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
-    //        v ? "true" : "false",
-    //        t ? "true" : "false",
-    //        e ? "true" : "false",
-    //        p ? "true" : "false",
-    //        i ? "true" : "false",
-    //        s, inputfile_name.c_str(), randfile_name.c_str());
+    printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
+           v ? "true" : "false",
+           t ? "true" : "false",
+           e ? "true" : "false",
+           p ? "true" : "false",
+           i ? "true" : "false",
+           s, inputfile_name.c_str(), randfile_name.c_str());
 
     // Gets the first value of the rfile, which is the array size needed inthe scheduler
     int r_array_size;
@@ -143,7 +145,6 @@ int main(int argc, char **argv)
     Event *scheduler_event_to_add;
     int io_burst = 0;
     int cpu_burst = 0;
-    int rand_val = 0;
 
     // Begin simulation
     while ((curr_event = des_layer.get_event()))
@@ -164,7 +165,14 @@ int main(int argc, char **argv)
 
             if (v)
             {
-                printf("%d %d %d CREATED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+                if (curr_process->get_old_process_state() == STATE_CREATED)
+                {
+                    printf("%d %d %d CREATED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+                }
+                else
+                {
+                    printf("%d %d %d BLOCKED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+                }
             }
             // Transition state to ready
             curr_process->update_state(STATE_READY);
@@ -204,6 +212,8 @@ int main(int argc, char **argv)
 
             // Update accounting / state of process
             curr_process->update_post_cpu_burst(CURRENT_TIME, cpu_burst);
+            // Update prior and current state
+            curr_process->update_state(STATE_BLOCKED);
 
             // TODO: Use quantum /burst for preemption, for now just think of blocking
 
@@ -230,7 +240,7 @@ int main(int argc, char **argv)
 
             //
             curr_process->update_post_io_burst(CURRENT_TIME, io_burst);
-
+            curr_process->update_state(STATE_READY);
             transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, TRANS_TO_BLOCK, TRANS_TO_READY);
             des_layer.put_event(transition_event_to_add);
             CALL_SCHEDULER = true;
@@ -252,6 +262,7 @@ int main(int argc, char **argv)
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
                 // create event to make this process runnable for same time.
+                printf("Creating event via scheduler\n");
                 CURRENT_RUNNING_PROCESS->update_state(STATE_RUNNING);
                 scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, TRANS_TO_READY, TRANS_TO_RUN);
                 des_layer.put_event(scheduler_event_to_add);

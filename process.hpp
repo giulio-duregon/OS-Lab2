@@ -140,9 +140,6 @@ public:
         _last_trans_time = curr_time_of_update;
         _remaining_cpu_time -= cpu_burst;
 
-        // Update prior and current state
-        update_state(STATE_BLOCKED);
-
         if (_remaining_cpu_time <= 0)
         {
             // may have to check if this still works
@@ -155,9 +152,6 @@ public:
         // Accounting
         _last_trans_time = curr_time_of_update;
         _total_io_time += io_burst;
-
-        // Update prior and current state
-        update_state(STATE_READY);
     }
 
     void update_state(PROCESS_STATES new_state)

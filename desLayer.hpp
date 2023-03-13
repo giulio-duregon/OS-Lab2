@@ -34,14 +34,6 @@ public:
                     event_layer.insert(it, to_add);
                     return;
                 }
-                else
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                continue;
             }
         }
         event_layer.push_back(to_add);
@@ -81,8 +73,6 @@ public:
 
 private:
     std::deque<Event *> event_layer;
-    bool _v;
-    const char *name;
 };
 
 #endif
