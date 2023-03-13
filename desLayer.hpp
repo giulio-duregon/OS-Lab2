@@ -9,14 +9,6 @@ class DES_Layer
 {
 public:
     DES_Layer(){};
-    DES_Layer(bool v)
-    {
-        if (v)
-        {
-            _v = true;
-        }
-        name = __func__;
-    }
     void put_event(Event *to_add)
     {
         std::deque<Event *>::iterator it;
@@ -24,10 +16,10 @@ public:
         for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
             Event *temp = *it;
-            if (_v)
-            {
-                trace("[40-%s], Inserting Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
-            }
+            // if (_v)
+            // {
+            //     trace("[40-%s], Inserting Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
+            // }
 
             if (to_add->get_timestamp() < temp->get_timestamp())
             {
@@ -76,7 +68,7 @@ public:
         for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
             Event *temp = *it;
-            trace("Element %d: %d\n", i, temp->get_process_id());
+            // trace("Element %d: %d\n", i, temp->get_process_id());
             i++;
         }
     }

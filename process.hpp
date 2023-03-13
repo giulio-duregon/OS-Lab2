@@ -3,7 +3,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-bool p;
+// bool p;
 
 enum PROCESS_STATES
 {
@@ -13,15 +13,15 @@ enum PROCESS_STATES
     STATE_BLOCKED
 };
 
-#define trace(fmt...)       \
-    do                      \
-    {                       \
-        if (p)              \
-        {                   \
-            printf(fmt);    \
-            fflush(stdout); \
-        }                   \
-    } while (0)
+// #define trace(fmt...)       \
+//     do                      \
+//     {                       \
+//         if (p)              \
+//         {                   \
+//             printf(fmt);    \
+//             fflush(stdout); \
+//         }                   \
+//     } while (0)
 
 char *GET_PROCESS_STATE_NAME_FROM_ENUM(int enum_code)
 {
@@ -49,7 +49,7 @@ public:
         set_process_state(STATE_CREATED);
         set_old_process_state(STATE_CREATED);
         // Only runs if p = true;
-        display();
+        // display();
     }
 
     int get_remaining_time()
@@ -109,17 +109,6 @@ public:
         _finish_time = time;
         _turnaround_time = _arrival_time - _finish_time;
     }
-    void display()
-    {
-        trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
-              id,
-              _process_state,
-              GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state),
-              _arrival_time,
-              _total_cpu_time,
-              _cpu_burst,
-              _io_burst);
-    }
 
     int get_prio()
     {
@@ -166,7 +155,17 @@ public:
         _old_process_state = _process_state;
         _process_state = new_state;
     }
-
+    // void display()
+    // {
+    //     trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
+    //           id,
+    //           _process_state,
+    //           GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state),
+    //           _arrival_time,
+    //           _total_cpu_time,
+    //           _cpu_burst,
+    //           _io_burst);
+    // }
 private:
     // Variables used for accounting
     int _remaining_cpu_time;

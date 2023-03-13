@@ -3,7 +3,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-bool t;
+// bool t;
 
 enum EVENT_STATES
 {
@@ -35,11 +35,11 @@ protected:
 public:
     AbstractEvent() { id = counter++; };
 
-    void display()
-    {
-        trace("[%-40s]: <%d>\n", __PRETTY_FUNCTION__, ((AbstractEvent *)this)->id);
-    }
-    virtual void fct() { trace("[%-40s]:\n", __PRETTY_FUNCTION__); }
+    // void display()
+    // {
+    //     trace("[%-40s]: <%d>\n", __PRETTY_FUNCTION__, ((AbstractEvent *)this)->id);
+    // }
+    // virtual void fct() { trace("[%-40s]:\n", __PRETTY_FUNCTION__); }
 };
 
 int AbstractEvent::counter = 0;
@@ -56,11 +56,11 @@ public:
         _process = process;
         _process_id = process->get_process_id();
         // only runs if t=true;
-        display();
+        // display();
     };
     EVENT_STATES get_event_state() { return _newstate; };
 
-    void display() { trace("[%-20s]: Event Number: %d Event Time: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _timestamp, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
+    // void display() { trace("[%-20s]: Event Number: %d Event Time: %d Event State #:%d Event Name: %s\n", __PRETTY_FUNCTION__, id, _timestamp, _newstate, GET_EVENT_ENUM_NAME(_newstate)); };
 
     Process *get_process()
     {

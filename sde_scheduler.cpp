@@ -8,15 +8,16 @@
 #include "event.hpp"
 #include "process.hpp"
 
-extern bool v;
-extern bool t;
-extern bool p;
-int ofs;
+// extern bool v;
+// extern bool t;
+// extern bool p;
+
 int rand_burst(int burst, int *randvals, int &offset) { return 1 + (randvals[offset++] % burst); }
 
 int main(int argc, char **argv)
 {
     // Initialize program arguments storage
+    bool v, t, p;
     bool e, i;
     int c;
     char *s = nullptr;
