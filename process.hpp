@@ -110,14 +110,24 @@ public:
         _turnaround_time = _arrival_time - _finish_time;
     }
 
-    int get_prio()
+    int get_static_prio()
     {
-        return _prio;
+        return _static_prio;
     };
-    void set_prio(int prio)
+    void set_static_prio(int prio)
     {
-        _prio = prio;
+        _static_prio = prio;
     }
+
+    int get_dynamic_prio()
+    {
+        return _dynamic_prio;
+    };
+    void set_dynamic_prio(int prio)
+    {
+        _dynamic_prio = prio;
+    }
+
     int get_io_burst()
     {
         return _io_burst;
@@ -147,14 +157,16 @@ public:
         _total_io_time += io_burst;
 
         // Update prior and current state
-        update_state(STATE_BLOCKED);
+        update_state(STATE_READY);
     }
 
     void update_state(PROCESS_STATES new_state)
     {
         _old_process_state = _process_state;
         _process_state = new_state;
+        printf("Post call In update state:  %s new: %s\n", GET_PROCESS_STATE_NAME_FROM_ENUM(_old_process_state), GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state));
     }
+
     // void display()
     // {
     //     trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
@@ -174,7 +186,8 @@ private:
     int _turnaround_time;
     int _cpu_waiting_time = 0;
     int _total_io_time = 0;
-    int _prio = 0;
+    int _dynamic_prio = 0;
+    int _static_prio = 0;
     int id;
 
     // Variables read in from input

@@ -8,11 +8,24 @@
 #include "event.hpp"
 #include "process.hpp"
 
-// extern bool v;
-// extern bool t;
-// extern bool p;
+int update_offset(int &offset, int array_size)
+{
+    offset++;
+    // Increment offset and if we pass the array size loop back around
+    if (offset >= array_size)
+    {
+        offset = 0;
+    }
+}
 
-int rand_burst(int burst, int *randvals, int &offset) { return 1 + (randvals[offset++] % burst); }
+int rand_burst(int burst, int *randvals, int &offset, int array_size)
+{
+    // Grab random value
+    int rand_val = randvals[offset];
+    // Update offest using helper function
+    update_offset(offset, array_size);
+    return 1 + (rand_val % burst);
+}
 
 int main(int argc, char **argv)
 {
@@ -29,6 +42,7 @@ int main(int argc, char **argv)
     Scheduler scheduler_builder;
     DES_Layer des_layer;
 
+    // Arg parsing
     while ((c = getopt(argc, argv, "vtepis:")) != -1)
     {
         switch (c)
@@ -65,34 +79,31 @@ int main(int argc, char **argv)
     inputfile_name = argv[optind];
     randfile_name = argv[optind + 1];
 
-    // TODO: DELETE LATER:
-    // Parse the type and set the scheduler
+    // Sets type and max prio
     scheduler_builder.set_scheduler_type(s);
-    SCHEDULER_TYPE type = scheduler_builder.get_type();
-    printf("Enum Type: %s, Numerical Type: %d\n", GET_ENUM_NAME(type), type);
-    printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
-           v ? "true" : "false",
-           t ? "true" : "false",
-           e ? "true" : "false",
-           p ? "true" : "false",
-           i ? "true" : "false",
-           s, inputfile_name.c_str(), randfile_name.c_str());
 
-    // TODO: Initialize random arr
-    //  Gets the first value of the rfile, which is the array size needed inthe scheduler
+    // TODO: DELETE LATER:
+    // printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
+    //        v ? "true" : "false",
+    //        t ? "true" : "false",
+    //        e ? "true" : "false",
+    //        p ? "true" : "false",
+    //        i ? "true" : "false",
+    //        s, inputfile_name.c_str(), randfile_name.c_str());
+
+    // Gets the first value of the rfile, which is the array size needed inthe scheduler
     int r_array_size;
     std::ifstream rfile;
     rfile.open(randfile_name);
     rfile >> r_array_size;
-    std::cout << "r_array_size=" << r_array_size << std::endl;
+
+    // Throw all the values of the array in
     int offset = 0;
     int *randvals{new int[r_array_size]{}};
     for (int i = 0; i < r_array_size; i++)
     {
         rfile >> randvals[i];
     }
-
-    // How to Call: rand_burst(10, randvals, offset)
 
     // Read in input from file -> make process -> make event -> add to event deque
     std::ifstream input_file(inputfile_name);
@@ -105,11 +116,13 @@ int main(int argc, char **argv)
             int total_cpu_time = 0;
             int cpu_burst = 0;
             int io_burst = 0;
+            int static_prio = rand_burst(scheduler_builder.maxprio, randvals, offset, r_array_size);
             sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
             CURRENT_TIME += arrival_time;
 
             // Create process / event, add to event deque
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
+            process->set_static_prio(static_prio);
             Event *event = new Event(arrival_time, process, TRANS_TO_READY, TRANS_TO_READY);
             des_layer.put_event(event);
         }
@@ -124,17 +137,19 @@ int main(int argc, char **argv)
         Event *transition_event_to_add;
         Event *scheduler_event_to_add;
         int io_burst = 0;
-        int stat_gen_burst = 0;
+        int cpu_burst = 0;
+        int rand_val = 0;
         Process *curr_process = curr_event->get_process();
         CURRENT_TIME = curr_event->get_timestamp();
         int transition = curr_event->get_event_state();
         int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
         delete curr_event;
         curr_event = nullptr;
-        if (v)
-        {
-            printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", CURRENT_TIME, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
-        }
+
+        // if (v)
+        // {
+        //     printf("Current Time=%d, Transition: %s timeInPrevState: %d \n", CURRENT_TIME, GET_EVENT_ENUM_NAME(transition), timeInPrevState);
+        // }
 
         switch (transition)
         {
@@ -162,11 +177,24 @@ int main(int argc, char **argv)
             break;
 
         case TRANS_TO_RUN:
+            // Must come from READY state
             assert(curr_process->get_old_process_state() == (STATE_READY));
-            stat_gen_burst = rand_burst(curr_process->get_burst(), randvals, offset);
-            printf("Time: %d Process Id: %d Time in Last State: %d cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, stat_gen_burst, curr_process->get_remaining_time(), curr_process->get_prio());
+
+            // Calculate cpu burst
+            cpu_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
+
+            // If cpu burst is larger than the time remaining, make them equal per instructions
+            if (cpu_burst > curr_process->get_remaining_time())
+            {
+                cpu_burst = curr_process->get_remaining_time();
+            }
+            if (v)
+            {
+                printf("%d %d %d cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst, curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
+            }
+
             // Update accounting / state of process
-            curr_process->update_post_cpu_burst(CURRENT_TIME, stat_gen_burst);
+            curr_process->update_post_cpu_burst(CURRENT_TIME, cpu_burst);
 
             // TODO: Use quantum /burst for preemption, for now just think of blocking
 
@@ -174,7 +202,7 @@ int main(int argc, char **argv)
             if (curr_process->get_remaining_time() > 0)
             {
                 // create event for either preemption or blocking
-                transition_event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
+                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
                 des_layer.put_event(transition_event_to_add);
             }
 
@@ -185,12 +213,18 @@ int main(int argc, char **argv)
         case TRANS_TO_BLOCK:
             assert(curr_process->get_old_process_state() == (STATE_RUNNING));
             // create an event for when process becomes READY again
-            io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset);
-            printf("Time: %d Process Id: %d CPU Burst Ran: %d RUN->Block ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
-            CALL_SCHEDULER = true;
+            io_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
+            if (v)
+            {
+                printf("%d %d %d RUN->BLOCKED ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
+            }
 
-            transition_event_to_add = new Event(CURRENT_TIME, curr_process, TRANS_TO_BLOCK, TRANS_TO_READY);
+            //
+            curr_process->update_post_io_burst(CURRENT_TIME, io_burst);
+
+            transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, TRANS_TO_BLOCK, TRANS_TO_READY);
             des_layer.put_event(transition_event_to_add);
+            CALL_SCHEDULER = true;
             break;
         }
 

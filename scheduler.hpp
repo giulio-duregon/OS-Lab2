@@ -34,7 +34,7 @@ class Scheduler
 {
 public:
     virtual void add_process(Process *process_to_add){};
-    virtual Process *get_next_process(){};
+    virtual Process *get_next_process() { return nullptr; };
     Scheduler(){};
 
     bool does_preemt()
@@ -107,13 +107,13 @@ class FIFO_Scheduler : Scheduler
 public:
     void add_process(Process *to_add)
     {
-        set_process_prio(to_add);
+        set_process_dynamic_prio(to_add);
 
         std::deque<Process *>::iterator it;
         for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
         {
             Process *temp = *it;
-            if (to_add->get_prio() < temp->get_prio())
+            if (to_add->get_dynamic_prio() < temp->get_dynamic_prio())
             {
                 RUN_QUEUE.insert(it, to_add);
                 return;
@@ -123,11 +123,11 @@ public:
         return;
     };
 
-    void set_process_prio(Process *process)
+    void set_process_dynamic_prio(Process *process)
     {
-        if (process->get_prio() == 0)
+        if (process->get_dynamic_prio() <= -1)
         {
-            process->set_prio(process->get_process_id());
+            process->set_dynamic_prio(process->get_static_prio() - 1);
         }
     }
 
@@ -147,6 +147,7 @@ public:
     std::deque<Process *> RUN_QUEUE;
 
 private:
+    int quantum = 10000;
 };
 
 Scheduler *build_scheduler(SCHEDULER_TYPE type)
