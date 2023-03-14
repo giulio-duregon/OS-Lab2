@@ -179,8 +179,10 @@ int main(int argc, char **argv)
                     printf("%d %d %d BLOCKED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
                 }
             }
+
             // Transition state to ready
             curr_process->update_state(STATE_READY);
+            curr_process->set_last_trans_time(CURRENT_TIME);
             // add to run queue, no event created
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
@@ -192,10 +194,10 @@ int main(int argc, char **argv)
 
             // Transition state to ready
             curr_process->update_state(STATE_READY);
+
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
-            // CURRENT_RUNNING_PROCESS = nullptr;
             break;
 
         case TRANS_TO_RUN:
@@ -236,6 +238,7 @@ int main(int argc, char **argv)
 
         case TRANS_TO_BLOCK:
             assert(curr_process->get_process_state() == (STATE_RUNNING));
+
             // create an event for when process becomes READY again
             io_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
             if (v)
@@ -243,15 +246,16 @@ int main(int argc, char **argv)
                 printf("%d %d %d RUN->BLOCKED ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
             }
 
-            //
+            // Update Accounting
             curr_process->update_post_io_burst(CURRENT_TIME, io_burst);
             curr_process->update_state(STATE_BLOCKED);
+
+            // Add event
             transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, last_event_state, TRANS_TO_READY);
             des_layer.put_event(transition_event_to_add);
 
             // Call schedule and set flag of current process
             CALL_SCHEDULER = true;
-            // CURRENT_RUNNING_PROCESS = nullptr;
             break;
         }
 
@@ -271,6 +275,7 @@ int main(int argc, char **argv)
                 CURRENT_RUNNING_PROCESS = THE_SCHEDULER->get_next_process();
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
+
                 // create event to make this process runnable for same time.
                 CURRENT_RUNNING_PROCESS->set_process_state(STATE_READY);
                 scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_RUN);
