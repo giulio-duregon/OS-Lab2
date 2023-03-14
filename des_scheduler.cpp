@@ -139,14 +139,13 @@ int main(int argc, char **argv)
 
     // Create scheduler based on type passed through -s
     Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
-
+    Process *CURRENT_RUNNING_PROCESS = nullptr;
     Event *curr_event = nullptr;
     // Begin simulation
     while ((curr_event = des_layer.get_event()) != nullptr)
     {
         // Helper variables for whole simulation
         bool CALL_SCHEDULER = false;
-        Process *CURRENT_RUNNING_PROCESS = nullptr;
         Event *transition_event_to_add = nullptr;
         Event *scheduler_event_to_add = nullptr;
         int io_burst = 0;
@@ -237,8 +236,9 @@ int main(int argc, char **argv)
             break;
 
         case TRANS_TO_BLOCK:
-            assert(curr_process->get_process_state() == (STATE_RUNNING));
 
+            assert(curr_process->get_process_state() == (STATE_RUNNING));
+            CURRENT_RUNNING_PROCESS = nullptr;
             // create an event for when process becomes READY again
             io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset, r_array_size);
             offset++;
@@ -263,6 +263,8 @@ int main(int argc, char **argv)
         case TRANS_TO_DONE:
             printf("%d %d %d: Done\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
             done_layer.add_process(curr_process);
+            CURRENT_RUNNING_PROCESS = nullptr;
+            CALL_SCHEDULER = true;
             break;
         }
 
