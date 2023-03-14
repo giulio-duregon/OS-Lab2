@@ -67,7 +67,7 @@ public:
         _last_trans_time = time;
     };
 
-    int get_burst()
+    int get_cpu_burst()
     {
         return _cpu_burst;
     }

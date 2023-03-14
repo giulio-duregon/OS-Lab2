@@ -20,11 +20,12 @@ int update_offset(int &offset, int array_size)
 
 int rand_burst(int burst, int *randvals, int &offset, int array_size)
 {
+    if (offset >= array_size)
+    {
+        offset = 0;
+    }
     // Grab random value
-    int rand_val = (randvals[offset] % burst);
-    // Update offest using helper function
-    update_offset(offset, array_size);
-    return rand_val + 1;
+    return 1 + (randvals[offset] % burst);
 }
 
 int main(int argc, char **argv)
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
             int io_burst = 0;
             int maxprio = scheduler_builder.maxprio;
             int static_prio = rand_burst(maxprio, randvals, offset, r_array_size);
-
+            offset++;
             // Parse file input
             sscanf(line.c_str(), "%d %d %d %d", &arrival_time, &total_cpu_time, &cpu_burst, &io_burst);
 
@@ -205,8 +206,8 @@ int main(int argc, char **argv)
             assert(curr_process->get_process_state() == (STATE_READY));
 
             // Calculate cpu burst
-            cpu_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
-
+            cpu_burst = rand_burst(curr_process->get_cpu_burst(), randvals, offset, r_array_size);
+            offset++;
             // If cpu burst is larger than the time remaining, make them equal per instructions
             if (cpu_burst > curr_process->get_remaining_time())
             {
@@ -231,6 +232,11 @@ int main(int argc, char **argv)
                 transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_BLOCK);
                 des_layer.put_event(transition_event_to_add);
             }
+            else
+            {
+                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_DONE);
+                des_layer.put_event(transition_event_to_add);
+            }
 
             // TODO: Maybe save finished processes somewhere for easy printing
 
@@ -240,7 +246,9 @@ int main(int argc, char **argv)
             assert(curr_process->get_process_state() == (STATE_RUNNING));
 
             // create an event for when process becomes READY again
-            io_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
+            io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset, r_array_size);
+            offset++;
+
             if (v)
             {
                 printf("%d %d %d RUN->BLOCKED ib=%d rem=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, io_burst, curr_process->get_remaining_time());
@@ -256,6 +264,10 @@ int main(int argc, char **argv)
 
             // Call schedule and set flag of current process
             CALL_SCHEDULER = true;
+            break;
+
+        case TRANS_TO_DONE:
+            printf("%d %d %d: Done\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
             break;
         }
 
