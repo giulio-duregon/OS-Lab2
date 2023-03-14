@@ -9,7 +9,7 @@
 #include "event.hpp"
 #include "process.hpp"
 
-int update_offset(int &offset, int array_size)
+void update_offset(int &offset, int array_size)
 {
     offset++;
     // Increment offset and if we pass the array size loop back around
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     Scheduler scheduler_builder;
     DES_Layer des_layer;
     DoneLayer done_layer;
-    std::cout << "Here" << std::endl;
+
     // Arg parsing
     while ((c = getopt(argc, argv, "vtepis:")) != -1)
     {

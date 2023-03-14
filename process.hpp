@@ -3,8 +3,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-// bool p;
-
 enum PROCESS_STATES
 {
     STATE_CREATED,
@@ -12,16 +10,6 @@ enum PROCESS_STATES
     STATE_RUNNING,
     STATE_BLOCKED
 };
-
-// #define trace(fmt...)       \
-//     do                      \
-//     {                       \
-//         if (p)              \
-//         {                   \
-//             printf(fmt);    \
-//             fflush(stdout); \
-//         }                   \
-//     } while (0)
 
 char *GET_PROCESS_STATE_NAME_FROM_ENUM(int enum_code)
 {
@@ -48,8 +36,6 @@ public:
         id = counter++;
         set_process_state(STATE_CREATED);
         set_old_process_state(STATE_CREATED);
-        // Only runs if p = true;
-        // display();
     }
 
     int get_remaining_time()

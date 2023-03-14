@@ -7,7 +7,6 @@
 #define SCHEDULER_H
 
 // For state transitions
-bool v;
 enum SCHEDULER_TYPE
 {
     FCFS,
@@ -164,5 +163,5 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type)
     case FCFS:
         return (Scheduler *)new FIFO_Scheduler;
     };
-};
+}
 #endif

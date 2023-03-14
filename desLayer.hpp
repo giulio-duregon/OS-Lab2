@@ -16,10 +16,6 @@ public:
         for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
             Event *temp = *it;
-            // if (_v)
-            // {
-            //     trace("[40-%s], Inserting Event Id: %d", __PRETTY_FUNCTION__, to_add->get_process()->get_process_id());
-            // }
 
             if (to_add->get_timestamp() < temp->get_timestamp())
             {
@@ -59,8 +55,6 @@ public:
         int i = 0;
         for (it = event_layer.begin(); it != event_layer.end(); ++it)
         {
-            Event *temp = *it;
-            // trace("Element %d: %d\n", i, temp->get_process_id());
             i++;
         }
     }
