@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <getopt.h>
+#include <deque>
 #include <cassert>
 #include "scheduler.hpp"
 #include "desLayer.hpp"

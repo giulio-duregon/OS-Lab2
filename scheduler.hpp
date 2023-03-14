@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
 #include "process.hpp"
+#include <deque>
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
