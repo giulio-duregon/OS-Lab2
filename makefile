@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-g -std=c++11 -Wall -pedantic -lstdc++ -Wvariadic-macros
-BIN=sde_scheduler
+BIN=des_scheduler
 
 SRC=$(wildcard *.cpp)
 OBJ=$(SRC:%.cpp=%.o)
@@ -13,7 +13,7 @@ all: $(OBJ)
 
 	
 run: all
-	./$(BIN) -v -t -e -p -s F /Users/giulio/OS-Lab2/input1 rfile
+	./$(BIN) -v -t -e -p -s F input1 rfile
 
 clean:
 	rm -f *.o
