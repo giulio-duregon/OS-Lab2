@@ -204,6 +204,61 @@ private:
     SCHEDULER_TYPE _scheduler_type = LCFS;
 };
 
+class SRTF_Scheduler : Scheduler
+{
+public:
+    // LCFS Scheduler should add process based event time
+    // Id will determine the insert order
+    void add_process(Process *to_add)
+    {
+        // printf("Adding process id: %d to run queue\n", to_add->get_process_id());
+        set_process_dynamic_prio(to_add);
+
+        std::deque<Process *>::iterator it;
+        for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
+        {
+            to_add->
+            Process *temp = *it;
+            if (to_add->get_last_trans_time() < temp->get_last_trans_time())
+            {
+                RUN_QUEUE.insert(it, to_add);
+                return;
+            }
+        }
+        RUN_QUEUE.push_back(to_add);
+        return;
+    };
+
+    void set_process_dynamic_prio(Process *process)
+    {
+        if (process->get_dynamic_prio() <= -1)
+        {
+            process->set_dynamic_prio(process->get_static_prio() - 1);
+        }
+    }
+
+    Process *get_next_process()
+    {
+        if (RUN_QUEUE.size())
+        {
+            Process *next_process = RUN_QUEUE.back();
+            RUN_QUEUE.pop_back();
+            return next_process;
+        }
+        else
+        {
+            return nullptr;
+        }
+    };
+
+    std::deque<Process *> RUN_QUEUE;
+
+private:
+    int quantum = 10000;
+    SCHEDULER_TYPE _scheduler_type = SRTF;
+};
+
+
 Scheduler *build_scheduler(SCHEDULER_TYPE type)
 {
     switch (type)
@@ -212,6 +267,8 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type)
         return (Scheduler *)new FIFO_Scheduler;
     case LCFS:
         return (Scheduler *)new LCFS_Scheduler;
+        case SRTF:
+        return (Scheduler *)new SRTF_Scheduler;
     };
 }
 #endif
