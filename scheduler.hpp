@@ -217,9 +217,8 @@ public:
         std::deque<Process *>::iterator it;
         for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
         {
-            to_add->
             Process *temp = *it;
-            if (to_add->get_last_trans_time() < temp->get_last_trans_time())
+            if (to_add->get_remaining_time() < temp->get_remaining_time())
             {
                 RUN_QUEUE.insert(it, to_add);
                 return;
@@ -241,8 +240,8 @@ public:
     {
         if (RUN_QUEUE.size())
         {
-            Process *next_process = RUN_QUEUE.back();
-            RUN_QUEUE.pop_back();
+            Process *next_process = RUN_QUEUE.front();
+            RUN_QUEUE.pop_front();
             return next_process;
         }
         else
@@ -258,7 +257,6 @@ private:
     SCHEDULER_TYPE _scheduler_type = SRTF;
 };
 
-
 Scheduler *build_scheduler(SCHEDULER_TYPE type)
 {
     switch (type)
@@ -267,7 +265,7 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type)
         return (Scheduler *)new FIFO_Scheduler;
     case LCFS:
         return (Scheduler *)new LCFS_Scheduler;
-        case SRTF:
+    case SRTF:
         return (Scheduler *)new SRTF_Scheduler;
     };
 }
