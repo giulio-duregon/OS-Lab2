@@ -17,7 +17,7 @@ enum SCHEDULER_TYPE
     PREPRIO
 };
 
-char *GET_ENUM_NAME(int enum_code)
+char *GET_SCHEDULER_NAME_FROM_ENUM(int enum_code)
 
 {
     static char *enum_name[] = {

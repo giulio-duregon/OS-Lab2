@@ -137,13 +137,15 @@ public:
     {
 
         // Accounting
+        _cpu_waiting_time += curr_time_of_update - _last_trans_time;
         _last_trans_time = curr_time_of_update;
         _remaining_cpu_time -= cpu_burst;
 
         if (_remaining_cpu_time <= 0)
         {
             // may have to check if this still works
-            _turnaround_time = _arrival_time - curr_time_of_update + cpu_burst;
+            _turnaround_time = curr_time_of_update - _arrival_time + cpu_burst;
+            _finish_time = curr_time_of_update + cpu_burst;
         }
     }
 
@@ -154,30 +156,47 @@ public:
         _total_io_time += io_burst;
     }
 
+    int get_total_cpu_time()
+    {
+        return _total_cpu_time;
+    }
+
+    int get_total_io_time()
+    {
+        return _total_io_time;
+    }
+
+    int get_arrival_time()
+    {
+        return _arrival_time;
+    }
+
+    int get_finish_time()
+    {
+        return _finish_time;
+    }
+
+    int get_turnaround_time()
+    {
+        return _turnaround_time;
+    }
+    int get_total_cpu_wait_time()
+    {
+        return _cpu_waiting_time;
+    }
+
     void update_state(PROCESS_STATES new_state)
     {
         _old_process_state = _process_state;
         _process_state = new_state;
-        // printf("Post call In update state:  %s new: %s\n", GET_PROCESS_STATE_NAME_FROM_ENUM(_old_process_state), GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state));
     }
 
-    // void display()
-    // {
-    //     trace("[%-20s]: Process Number: %d Process State #:%d Process Name: %s --  AT: %d TC: %d CB %d IO: %d\n", __PRETTY_FUNCTION__,
-    //           id,
-    //           _process_state,
-    //           GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state),
-    //           _arrival_time,
-    //           _total_cpu_time,
-    //           _cpu_burst,
-    //           _io_burst);
-    // }
 private:
     // Variables used for accounting
-    int _remaining_cpu_time;
+    int _remaining_cpu_time = 0;
     int _last_trans_time = 0;
-    int _finish_time;
-    int _turnaround_time;
+    int _finish_time = 0;
+    int _turnaround_time = 0;
     int _cpu_waiting_time = 0;
     int _total_io_time = 0;
     int _dynamic_prio = 0;

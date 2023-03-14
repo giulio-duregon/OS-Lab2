@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     std::string randfile_name;
     Scheduler scheduler_builder;
     DES_Layer des_layer;
-
+    DoneLayer done_layer;
     std::cout << "Here" << std::endl;
     // Arg parsing
     while ((c = getopt(argc, argv, "vtepis:")) != -1)
@@ -233,9 +233,6 @@ int main(int argc, char **argv)
                 transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_DONE);
                 des_layer.put_event(transition_event_to_add);
             }
-
-            // TODO: Maybe save finished processes somewhere for easy printing
-
             break;
 
         case TRANS_TO_BLOCK:
@@ -264,6 +261,7 @@ int main(int argc, char **argv)
 
         case TRANS_TO_DONE:
             printf("%d %d %d: Done\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+            done_layer.add_process(curr_process);
             break;
         }
 
@@ -293,5 +291,7 @@ int main(int argc, char **argv)
         }
     }
 
+    std::cout << GET_SCHEDULER_NAME_FROM_ENUM(THE_SCHEDULER->get_type()) << std::endl;
+    done_layer.print_stats();
     return 0;
 }

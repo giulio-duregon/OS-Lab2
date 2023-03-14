@@ -81,4 +81,47 @@ private:
     std::deque<Event *> event_layer;
 };
 
+class DoneLayer
+{
+public:
+    void print_stats()
+    {
+        std::deque<Process *>::iterator it;
+        for (it = done_processes.begin(); it != done_processes.end(); ++it)
+        {
+            Process *temp = *it;
+            printf("%d: %d %d %d %d %d | %d %d %d %d \n",
+                   temp->get_process_id(),
+                   temp->get_arrival_time(),
+                   temp->get_total_cpu_time(),
+                   temp->get_cpu_burst(),
+                   temp->get_io_burst(),
+                   temp->get_static_prio(),
+                   temp->get_finish_time(),
+                   temp->get_turnaround_time(),
+                   temp->get_total_io_time(),
+                   temp->get_total_cpu_wait_time());
+        }
+    };
+
+    void add_process(Process *to_add)
+    {
+        std::deque<Process *>::iterator it;
+        for (it = done_processes.begin(); it != done_processes.end(); ++it)
+        {
+            Process *temp = *it;
+            if (to_add->get_process_id() < temp->get_process_id())
+            {
+                done_processes.insert(it, to_add);
+                return;
+            }
+        }
+        done_processes.push_back(to_add);
+        return;
+    };
+
+private:
+    std::deque<Process *> done_processes;
+};
+
 #endif
