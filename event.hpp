@@ -59,11 +59,13 @@ public:
         return _process;
     }
 
+    int get_event_id() { return id; }
     int get_timestamp() { return _timestamp; }
     int get_process_id() { return _process_id; }
     int get_old_state() { return _oldstate; }
 
 private:
+    int id;
     int _timestamp;
     Process *_process;
     int _process_id;

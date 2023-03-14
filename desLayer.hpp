@@ -17,21 +17,53 @@ public:
         {
             Event *temp = *it;
 
+            // Process events in chron order
             if (to_add->get_timestamp() < temp->get_timestamp())
             {
                 event_layer.insert(it, to_add);
                 return;
             }
 
+            // Decide tie breakers
             if (to_add->get_timestamp() == temp->get_timestamp())
             {
-                if (to_add->get_process()->get_process_id() < temp->get_process()->get_process_id())
+                // Two events are created at the same time, decided by
+                // file occurance, (process_id)
+                EVENT_STATES to_add_event_state = to_add->get_event_state();
+                EVENT_STATES temp_event_state = temp->get_event_state();
+                if ((temp_event_state == STATE_CREATED) && (to_add_event_state == STATE_CREATED))
                 {
-                    event_layer.insert(it, to_add);
-                    return;
+                    if (to_add->get_process()->get_process_id() < temp->get_process()->get_process_id())
+                    {
+                        event_layer.insert(it, to_add);
+                        return;
+                    }
+                }
+
+                // Events with same time stamp transitioning from two states
+                // I.e. CPU burst / IO burst -> first even added should have precedence
+                if (temp_event_state != to_add_event_state)
+                {
+                    if (to_add->get_event_id() < temp->get_event_id())
+                    {
+                        event_layer.insert(it, to_add);
+                        return;
+                    }
+                }
+
+                // If they have the same
+                if (temp_event_state == to_add_event_state)
+                {
+                    if (to_add->get_event_id() < temp->get_event_id())
+                    {
+                        event_layer.insert(it, to_add);
+                        return;
+                    }
                 }
             }
         }
+
+        // Otherwise push to back of deque
         event_layer.push_back(to_add);
         return;
     }
@@ -61,9 +93,13 @@ public:
 
     int get_next_event_time()
     {
-        // What to do if no events?
-        Event *next_event = event_layer.front();
-        return next_event->get_timestamp();
+        if (event_layer.size())
+        {
+            // What to do if no events?
+            Event *next_event = event_layer.front();
+            return next_event->get_timestamp();
+        }
+        return 0;
     }
 
     int size()

@@ -269,7 +269,7 @@ int main(int argc, char **argv)
         if (CALL_SCHEDULER)
         {
             // Adding no events clause here
-            if ((des_layer.size() != 0) && des_layer.get_next_event_time() == CURRENT_TIME)
+            if ((des_layer.get_next_event_time() == CURRENT_TIME))
             {
                 // process next event from Event queue
                 continue;
