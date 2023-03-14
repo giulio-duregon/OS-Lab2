@@ -94,7 +94,7 @@ private:
         {
             maxprio = 4;
         }
-        printf("quantum: %d, maxprio: %d\n", quantum, maxprio);
+        // printf("quantum: %d, maxprio: %d\n", quantum, maxprio);
     }
 };
 

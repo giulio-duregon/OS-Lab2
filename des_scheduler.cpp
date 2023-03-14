@@ -84,13 +84,14 @@ int main(int argc, char **argv)
     scheduler_builder.set_scheduler_type(s);
 
     // TODO: DELETE LATER:
-    printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
-           v ? "true" : "false",
-           t ? "true" : "false",
-           e ? "true" : "false",
-           p ? "true" : "false",
-           i ? "true" : "false",
-           s, inputfile_name.c_str(), randfile_name.c_str());
+
+    /* printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
+    //        v ? "true" : "false",
+    //        t ? "true" : "false",
+    //        e ? "true" : "false",
+    //        p ? "true" : "false",
+    //        i ? "true" : "false",
+    //        s, inputfile_name.c_str(), randfile_name.c_str()); */
 
     // Gets the first value of the rfile, which is the array size needed inthe scheduler
     int r_array_size;
@@ -286,7 +287,11 @@ int main(int argc, char **argv)
             break;
 
         case TRANS_TO_DONE:
-            printf("%d %d %d: Done\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+            if (v)
+            {
+                printf("%d %d %d: Done\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
+            }
+
             done_layer.add_process(curr_process);
             CURRENT_RUNNING_PROCESS = nullptr;
             CALL_SCHEDULER = true;
