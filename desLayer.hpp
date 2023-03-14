@@ -80,11 +80,18 @@ class DoneLayer
 public:
     void print_stats()
     {
+        double num_process = done_processes.size();
         std::deque<Process *>::iterator it;
         for (it = done_processes.begin(); it != done_processes.end(); ++it)
         {
             Process *temp = *it;
-            printf("%d: %d %d %d %d %d | %d %d %d %d \n",
+            last_finish_time = temp->get_finish_time();
+            all_total_cpu_time += temp->get_total_cpu_time();
+            all_io_time += temp->get_total_io_time();
+            total_cpu_wait += temp->get_total_cpu_wait_time();
+            total_tt += temp->get_turnaround_time();
+
+            printf("%04d: %4d %4d %4d %4d %1d | %5d %5d %5d %5d\n",
                    temp->get_process_id(),
                    temp->get_arrival_time(),
                    temp->get_total_cpu_time(),
@@ -96,6 +103,14 @@ public:
                    temp->get_total_io_time(),
                    temp->get_total_cpu_wait_time());
         }
+
+        double cpu_util = (all_total_cpu_time * 100) / last_finish_time;
+        double io_util = (all_io_time * 100) / last_finish_time;
+        avg_cpu_wait = total_cpu_wait / num_process;
+        avg_tt = total_tt / num_process;
+        double throughput = 100 * (num_process / last_finish_time);
+        // SUM: 8237 12.14 6.53 307.60 0.00 0.061
+        printf("SUM: %d %.2lf %.2lf %.2lf %.2lf %.3lf\n", last_finish_time, cpu_util, io_util, avg_tt, avg_cpu_wait, throughput);
     };
 
     void add_process(Process *to_add)
@@ -116,6 +131,14 @@ public:
 
 private:
     std::deque<Process *> done_processes;
+    double all_total_cpu_time = 0;
+
+    double all_io_time = 0;
+    double total_tt = 0;
+    double avg_tt = 0;
+    double total_cpu_wait = 0;
+    double avg_cpu_wait = 0;
+    int last_finish_time = 0;
 };
 
 #endif
