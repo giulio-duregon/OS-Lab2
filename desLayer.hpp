@@ -67,6 +67,11 @@ public:
 
     int get_next_event_time()
     {
+        // What to do if no events?
+        if (event_layer.size() <= 0)
+        {
+            return -1;
+        }
         Event *next_event = event_layer.front();
         return next_event->get_timestamp();
     }

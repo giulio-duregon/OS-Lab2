@@ -24,7 +24,7 @@ int rand_burst(int burst, int *randvals, int &offset, int array_size)
     int rand_val = (randvals[offset] % burst);
     // Update offest using helper function
     update_offset(offset, array_size);
-    return rand_val;
+    return rand_val + 1;
 }
 
 int main(int argc, char **argv)
@@ -138,21 +138,26 @@ int main(int argc, char **argv)
     // Create scheduler based on type passed through -s
     Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
 
-    // Helper variables for whole simulation
-    bool CALL_SCHEDULER;
     Event *curr_event;
-    Event *transition_event_to_add;
-    Event *scheduler_event_to_add;
-    int io_burst = 0;
-    int cpu_burst = 0;
-
     // Begin simulation
     while ((curr_event = des_layer.get_event()))
     {
+        if (curr_event == nullptr)
+        {
+            break;
+        }
+        // Helper variables for whole simulation
+        bool CALL_SCHEDULER = false;
+
+        Event *transition_event_to_add;
+        Event *scheduler_event_to_add;
+        int io_burst = 0;
+        int cpu_burst = 0;
         // Helper vars per iteration
         Process *curr_process = curr_event->get_process();
         int CURRENT_TIME = curr_event->get_timestamp();
         int transition = curr_event->get_event_state();
+        EVENT_STATES last_event_state = curr_event->get_event_state();
         int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
         delete curr_event;
         curr_event = nullptr;
@@ -161,11 +166,11 @@ int main(int argc, char **argv)
         {
         case TRANS_TO_READY:
             // must come from BLOCKED or CREATED
-            assert((curr_process->get_old_process_state() == STATE_CREATED) || (curr_process->get_old_process_state() == STATE_BLOCKED));
+            assert((curr_process->get_process_state() == STATE_CREATED) || (curr_process->get_process_state() == STATE_BLOCKED));
 
             if (v)
             {
-                if (curr_process->get_old_process_state() == STATE_CREATED)
+                if (curr_process->get_process_state() == STATE_CREATED)
                 {
                     printf("%d %d %d CREATED->READY\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState);
                 }
@@ -183,14 +188,14 @@ int main(int argc, char **argv)
 
         case TRANS_TO_PREEMPT:
             // must come from RUNNING (preemption)
-            assert(curr_process->get_old_process_state() == (STATE_RUNNING));
+            assert(curr_process->get_process_state() == (STATE_RUNNING));
 
             // Transition state to ready
-            curr_process->set_old_process_state(curr_process->get_process_state());
-            curr_process->set_process_state(STATE_READY);
+            curr_process->update_state(STATE_READY);
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
+            // CURRENT_RUNNING_PROCESS = nullptr;
             break;
 
         case TRANS_TO_RUN:
@@ -213,7 +218,7 @@ int main(int argc, char **argv)
             // Update accounting / state of process
             curr_process->update_post_cpu_burst(CURRENT_TIME, cpu_burst);
             // Update prior and current state
-            curr_process->update_state(STATE_BLOCKED);
+            curr_process->update_state(STATE_RUNNING);
 
             // TODO: Use quantum /burst for preemption, for now just think of blocking
 
@@ -221,7 +226,7 @@ int main(int argc, char **argv)
             if (curr_process->get_remaining_time() > 0)
             {
                 // create event for either preemption or blocking
-                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, TRANS_TO_RUN, TRANS_TO_BLOCK);
+                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_BLOCK);
                 des_layer.put_event(transition_event_to_add);
             }
 
@@ -230,7 +235,7 @@ int main(int argc, char **argv)
             break;
 
         case TRANS_TO_BLOCK:
-            assert(curr_process->get_old_process_state() == (STATE_RUNNING));
+            assert(curr_process->get_process_state() == (STATE_RUNNING));
             // create an event for when process becomes READY again
             io_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
             if (v)
@@ -240,20 +245,25 @@ int main(int argc, char **argv)
 
             //
             curr_process->update_post_io_burst(CURRENT_TIME, io_burst);
-            curr_process->update_state(STATE_READY);
-            transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, TRANS_TO_BLOCK, TRANS_TO_READY);
+            curr_process->update_state(STATE_BLOCKED);
+            transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, last_event_state, TRANS_TO_READY);
             des_layer.put_event(transition_event_to_add);
+
+            // Call schedule and set flag of current process
             CALL_SCHEDULER = true;
+            // CURRENT_RUNNING_PROCESS = nullptr;
             break;
         }
 
         if (CALL_SCHEDULER)
         {
-            if (des_layer.get_next_event_time() == CURRENT_TIME)
+            // Adding no events clause here
+            if ((des_layer.get_next_event_time() == CURRENT_TIME) || (des_layer.get_next_event_time() == -1))
             {
                 // process next event from Event queue
                 continue;
             }
+
             // Reset global flag
             CALL_SCHEDULER = false;
             if (CURRENT_RUNNING_PROCESS == nullptr)
@@ -264,7 +274,7 @@ int main(int argc, char **argv)
                 // create event to make this process runnable for same time.
                 printf("Creating event via scheduler\n");
                 CURRENT_RUNNING_PROCESS->update_state(STATE_RUNNING);
-                scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, TRANS_TO_READY, TRANS_TO_RUN);
+                scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_RUN);
                 des_layer.put_event(scheduler_event_to_add);
             }
         }
