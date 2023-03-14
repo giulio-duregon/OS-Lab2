@@ -114,16 +114,18 @@ private:
 class DoneLayer
 {
 public:
-    void print_stats()
+    void print_stats(double total_io_time)
     {
         double num_process = done_processes.size();
         std::deque<Process *>::iterator it;
-        for (it = done_processes.begin(); it != done_processes.end(); ++it)
+        for (it = done_processes.begin(); it != done_processes.end(); it++)
         {
             Process *temp = *it;
-            last_finish_time = temp->get_finish_time();
+            if (temp->get_finish_time() > last_finish_time)
+            {
+                last_finish_time = temp->get_finish_time();
+            }
             all_total_cpu_time += temp->get_total_cpu_time();
-            all_io_time += temp->get_total_io_time();
             total_cpu_wait += temp->get_total_cpu_wait_time();
             total_tt += temp->get_turnaround_time();
 
@@ -141,7 +143,7 @@ public:
         }
 
         double cpu_util = (all_total_cpu_time * 100) / last_finish_time;
-        double io_util = (all_io_time * 100) / last_finish_time;
+        double io_util = (total_io_time * 100) / last_finish_time;
         avg_cpu_wait = total_cpu_wait / num_process;
         avg_tt = total_tt / num_process;
         double throughput = 100 * (num_process / last_finish_time);

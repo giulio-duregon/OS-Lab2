@@ -141,6 +141,10 @@ int main(int argc, char **argv)
     Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
     Process *CURRENT_RUNNING_PROCESS = nullptr;
     Event *curr_event = nullptr;
+    double total_io_time = 0;
+    int last_time_start_io = 0;
+    int events_in_io = 0;
+
     // Begin simulation
     while ((curr_event = des_layer.get_event()) != nullptr)
     {
@@ -164,6 +168,18 @@ int main(int argc, char **argv)
         case TRANS_TO_READY:
             // must come from BLOCKED or CREATED
             assert((curr_process->get_process_state() == STATE_CREATED) || (curr_process->get_process_state() == STATE_BLOCKED));
+
+            // For IO Util
+            if (curr_process->get_process_state() == STATE_BLOCKED)
+            {
+                // Keep track of how many events are in IO
+                events_in_io -= 1;
+                // If we get to 0 our period of IO util has ended
+                if (events_in_io == 0)
+                {
+                    total_io_time += CURRENT_TIME - last_time_start_io;
+                }
+            }
 
             if (v)
             {
@@ -239,6 +255,7 @@ int main(int argc, char **argv)
 
             assert(curr_process->get_process_state() == (STATE_RUNNING));
             CURRENT_RUNNING_PROCESS = nullptr;
+
             // create an event for when process becomes READY again
             io_burst = rand_burst(curr_process->get_io_burst(), randvals, offset, r_array_size);
             offset++;
@@ -251,6 +268,14 @@ int main(int argc, char **argv)
             // Update Accounting
             curr_process->update_post_io_burst(CURRENT_TIME, io_burst);
             curr_process->update_state(STATE_BLOCKED);
+
+            // Update IO util
+            if (events_in_io == 0)
+            {
+                // If we have none in IO, our new period of IO util starts now
+                last_time_start_io = CURRENT_TIME;
+            }
+            events_in_io++;
 
             // Add event
             transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, last_event_state, TRANS_TO_READY);
@@ -297,6 +322,6 @@ int main(int argc, char **argv)
 
     // Output Results
     printf("%s\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()));
-    done_layer.print_stats();
+    done_layer.print_stats(total_io_time);
     return 0;
 }
