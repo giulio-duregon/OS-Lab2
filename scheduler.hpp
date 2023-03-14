@@ -105,7 +105,7 @@ public:
     // Id will determine the insert order
     void add_process(Process *to_add)
     {
-        printf("Adding process id: %d to run queue\n", to_add->get_process_id());
+        // printf("Adding process id: %d to run queue\n", to_add->get_process_id());
         set_process_dynamic_prio(to_add);
 
         std::deque<Process *>::iterator it;
@@ -135,8 +135,8 @@ public:
         if (RUN_QUEUE.size() >= 1)
         {
             Process *next_process = RUN_QUEUE.front();
-            printf("Retrieving process id: %d to run queue\n", next_process->get_process_id());
-            // RUN_QUEUE.pop_front();
+            // printf("Retrieving process id: %d to run queue\n", next_process->get_process_id());
+            RUN_QUEUE.pop_front();
             return next_process;
         }
         else
@@ -147,7 +147,7 @@ public:
 
     void rm_next_process(Process *process)
     {
-        printf("Removing process id: %d to run queue\n", process->get_process_id());
+        // printf("Removing process id: %d to run queue\n", process->get_process_id());
         RUN_QUEUE.pop_front();
     }
     std::deque<Process *> RUN_QUEUE;

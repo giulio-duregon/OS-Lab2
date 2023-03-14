@@ -34,7 +34,6 @@ int main(int argc, char **argv)
     bool e, i;
     int c;
     char *s = nullptr;
-    Process *CURRENT_RUNNING_PROCESS = nullptr;
     std::string inputfile_name;
     std::string line;
     std::string randfile_name;
@@ -161,6 +160,7 @@ int main(int argc, char **argv)
         int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
         delete curr_event;
         curr_event = nullptr;
+        Process *CURRENT_RUNNING_PROCESS = nullptr;
 
         switch (transition)
         {
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 
         case TRANS_TO_RUN:
             // Must come from READY state
-            assert(curr_process->get_old_process_state() == (STATE_READY));
+            assert(curr_process->get_process_state() == (STATE_READY));
 
             // Calculate cpu burst
             cpu_burst = rand_burst(curr_process->get_burst(), randvals, offset, r_array_size);
@@ -272,8 +272,7 @@ int main(int argc, char **argv)
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
                 // create event to make this process runnable for same time.
-                printf("Creating event via scheduler\n");
-                CURRENT_RUNNING_PROCESS->update_state(STATE_RUNNING);
+                CURRENT_RUNNING_PROCESS->set_process_state(STATE_READY);
                 scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_RUN);
                 des_layer.put_event(scheduler_event_to_add);
             }

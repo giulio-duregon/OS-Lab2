@@ -158,7 +158,7 @@ public:
     {
         _old_process_state = _process_state;
         _process_state = new_state;
-        printf("Post call In update state:  %s new: %s\n", GET_PROCESS_STATE_NAME_FROM_ENUM(_old_process_state), GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state));
+        // printf("Post call In update state:  %s new: %s\n", GET_PROCESS_STATE_NAME_FROM_ENUM(_old_process_state), GET_PROCESS_STATE_NAME_FROM_ENUM(_process_state));
     }
 
     // void display()
