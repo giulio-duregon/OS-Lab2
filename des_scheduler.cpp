@@ -279,7 +279,6 @@ int main(int argc, char **argv)
             CALL_SCHEDULER = false;
             if (CURRENT_RUNNING_PROCESS == nullptr)
             {
-                printf("getting next process\n");
                 CURRENT_RUNNING_PROCESS = THE_SCHEDULER->get_next_process();
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
@@ -293,6 +292,6 @@ int main(int argc, char **argv)
     }
 
     std::cout << GET_SCHEDULER_NAME_FROM_ENUM(THE_SCHEDULER->get_type()) << std::endl;
-    done_layer.print_stats();
+    // done_layer.print_stats();
     return 0;
 }
