@@ -112,7 +112,7 @@ public:
         for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
         {
             Process *temp = *it;
-            if (to_add->get_process_id() < temp->get_process_id())
+            if (to_add->get_last_trans_time() < temp->get_last_trans_time())
             {
                 RUN_QUEUE.insert(it, to_add);
                 return;
@@ -132,7 +132,7 @@ public:
 
     Process *get_next_process()
     {
-        if (RUN_QUEUE.size() >= 1)
+        if (RUN_QUEUE.size())
         {
             Process *next_process = RUN_QUEUE.front();
             RUN_QUEUE.pop_front();

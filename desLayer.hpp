@@ -31,7 +31,7 @@ public:
                 // file occurance, (process_id)
                 EVENT_STATES to_add_event_state = to_add->get_event_state();
                 EVENT_STATES temp_event_state = temp->get_event_state();
-                if ((temp_event_state == STATE_CREATED) && (to_add_event_state == STATE_CREATED))
+                if ((temp_event_state == TRANS_TO_CREATED) && (to_add_event_state == TRANS_TO_CREATED))
                 {
                     if (to_add->get_process()->get_process_id() < temp->get_process()->get_process_id())
                     {
