@@ -135,7 +135,6 @@ public:
         if (RUN_QUEUE.size() >= 1)
         {
             Process *next_process = RUN_QUEUE.front();
-            // printf("Retrieving process id: %d to run queue\n", next_process->get_process_id());
             RUN_QUEUE.pop_front();
             return next_process;
         }
@@ -145,15 +144,11 @@ public:
         }
     };
 
-    void rm_next_process(Process *process)
-    {
-        // printf("Removing process id: %d to run queue\n", process->get_process_id());
-        RUN_QUEUE.pop_front();
-    }
     std::deque<Process *> RUN_QUEUE;
 
 private:
     int quantum = 10000;
+    SCHEDULER_TYPE _scheduler_type = FCFS;
 };
 
 Scheduler *build_scheduler(SCHEDULER_TYPE type)

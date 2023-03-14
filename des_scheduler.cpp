@@ -105,6 +105,7 @@ int main(int argc, char **argv)
     {
         rfile >> randvals[i];
     }
+    rfile.close();
 
     // Read in input from file -> make process -> make event -> add to event deque
     std::ifstream input_file(inputfile_name);
@@ -139,15 +140,15 @@ int main(int argc, char **argv)
     // Create scheduler based on type passed through -s
     Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
 
-    Event *curr_event;
+    Event *curr_event = nullptr;
     // Begin simulation
-    while ((curr_event = des_layer.get_event()))
+    while ((curr_event = des_layer.get_event()) != nullptr)
     {
         // Helper variables for whole simulation
         bool CALL_SCHEDULER = false;
-
-        Event *transition_event_to_add;
-        Event *scheduler_event_to_add;
+        Process *CURRENT_RUNNING_PROCESS = nullptr;
+        Event *transition_event_to_add = nullptr;
+        Event *scheduler_event_to_add = nullptr;
         int io_burst = 0;
         int cpu_burst = 0;
         // Helper vars per iteration
@@ -158,7 +159,6 @@ int main(int argc, char **argv)
         int timeInPrevState = CURRENT_TIME - curr_process->get_last_trans_time();
         delete curr_event;
         curr_event = nullptr;
-        Process *CURRENT_RUNNING_PROCESS = nullptr;
 
         switch (transition)
         {
@@ -281,7 +281,9 @@ int main(int argc, char **argv)
             {
                 CURRENT_RUNNING_PROCESS = THE_SCHEDULER->get_next_process();
                 if (CURRENT_RUNNING_PROCESS == nullptr)
+                {
                     continue;
+                }
 
                 // create event to make this process runnable for same time.
                 CURRENT_RUNNING_PROCESS->set_process_state(STATE_READY);
@@ -291,7 +293,8 @@ int main(int argc, char **argv)
         }
     }
 
-    std::cout << GET_SCHEDULER_NAME_FROM_ENUM(THE_SCHEDULER->get_type()) << std::endl;
-    // done_layer.print_stats();
+    // Output Results
+    printf("%s\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()));
+    done_layer.print_stats();
     return 0;
 }
