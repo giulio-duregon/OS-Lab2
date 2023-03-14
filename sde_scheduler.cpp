@@ -142,10 +142,6 @@ int main(int argc, char **argv)
     // Begin simulation
     while ((curr_event = des_layer.get_event()))
     {
-        if (curr_event == nullptr)
-        {
-            break;
-        }
         // Helper variables for whole simulation
         bool CALL_SCHEDULER = false;
 
@@ -274,7 +270,7 @@ int main(int argc, char **argv)
         if (CALL_SCHEDULER)
         {
             // Adding no events clause here
-            if ((des_layer.get_next_event_time() == CURRENT_TIME) || (des_layer.get_next_event_time() == -1))
+            if ((des_layer.size() != 0) && des_layer.get_next_event_time() == CURRENT_TIME)
             {
                 // process next event from Event queue
                 continue;
@@ -284,6 +280,7 @@ int main(int argc, char **argv)
             CALL_SCHEDULER = false;
             if (CURRENT_RUNNING_PROCESS == nullptr)
             {
+                printf("getting next process\n");
                 CURRENT_RUNNING_PROCESS = THE_SCHEDULER->get_next_process();
                 if (CURRENT_RUNNING_PROCESS == nullptr)
                     continue;
