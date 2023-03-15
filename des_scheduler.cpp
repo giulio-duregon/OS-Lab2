@@ -119,7 +119,7 @@ int main(int argc, char **argv)
             int total_cpu_time = 0;
             int cpu_burst = 0;
             int io_burst = 0;
-            int maxprio = scheduler_builder.maxprio;
+            int maxprio = scheduler_builder.get_maxprio();
             int static_prio = rand_burst(maxprio, randvals, offset, r_array_size);
             offset++;
             // Parse file input
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
     }
 
     // Create scheduler based on type passed through -s
-    Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type());
+    Scheduler *THE_SCHEDULER = build_scheduler(scheduler_builder.get_type(), scheduler_builder.get_quantum(), scheduler_builder.get_maxprio());
     Process *CURRENT_RUNNING_PROCESS = nullptr;
     Event *curr_event = nullptr;
     double total_io_time = 0;

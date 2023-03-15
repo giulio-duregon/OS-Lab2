@@ -82,19 +82,27 @@ public:
     {
         return _scheduler_type;
     }
-    int quantum = 0;
-    int maxprio = 0;
+    int get_quantum()
+    {
+        return _quantum;
+    }
+
+    int get_maxprio()
+    {
+        return _maxprio;
+    }
 
 private:
     SCHEDULER_TYPE _scheduler_type;
+    int _quantum = 0;
+    int _maxprio = 0;
     void scan_optional(const char *s)
     {
-        sscanf(s, "%d:%d", &quantum, &maxprio);
-        if (maxprio == 0)
+        sscanf(s, "%d:%d", &_quantum, &_maxprio);
+        if (_maxprio == 0)
         {
-            maxprio = 4;
+            _maxprio = 4;
         }
-        // printf("quantum: %d, maxprio: %d\n", quantum, maxprio);
     }
 };
 
@@ -257,16 +265,77 @@ private:
     SCHEDULER_TYPE _scheduler_type = SRTF;
 };
 
-Scheduler *build_scheduler(SCHEDULER_TYPE type)
+class RR_Scheduler : Scheduler
+{
+public:
+    RR_Scheduler(int g_quantum)
+    {
+        quantum = g_quantum;
+    };
+
+    // LCFS Scheduler should add process based event time
+    // Id will determine the insert order
+    void add_process(Process *to_add)
+    {
+        // printf("Adding process id: %d to run queue\n", to_add->get_process_id());
+        set_process_dynamic_prio(to_add);
+
+        std::deque<Process *>::iterator it;
+        for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
+        {
+            Process *temp = *it;
+            if (to_add->get_remaining_time() < temp->get_remaining_time())
+            {
+                RUN_QUEUE.insert(it, to_add);
+                return;
+            }
+        }
+        RUN_QUEUE.push_back(to_add);
+        return;
+    };
+
+    void set_process_dynamic_prio(Process *process)
+    {
+        if (process->get_dynamic_prio() <= -1)
+        {
+            process->set_dynamic_prio(process->get_static_prio() - 1);
+        }
+    }
+
+    Process *get_next_process()
+    {
+        if (RUN_QUEUE.size())
+        {
+            Process *next_process = RUN_QUEUE.front();
+            RUN_QUEUE.pop_front();
+            return next_process;
+        }
+        else
+        {
+            return nullptr;
+        }
+    };
+
+    std::deque<Process *> RUN_QUEUE;
+
+private:
+    int quantum;
+    SCHEDULER_TYPE _scheduler_type = SRTF;
+};
+
+Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
 {
     switch (type)
     {
     case FCFS:
         return (Scheduler *)new FIFO_Scheduler;
+
     case LCFS:
         return (Scheduler *)new LCFS_Scheduler;
     case SRTF:
         return (Scheduler *)new SRTF_Scheduler;
+    case RR:
+        return (Scheduler *)new RR_Scheduler(quantum);
     };
 }
 #endif
