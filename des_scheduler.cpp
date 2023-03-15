@@ -326,7 +326,19 @@ int main(int argc, char **argv)
     }
 
     // Output Results
-    printf("%s\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()));
+    SCHEDULER_TYPE type = scheduler_builder.get_type();
+    switch (type)
+    {
+    case RR:
+        printf("%s%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), THE_SCHEDULER->get_quantum());
+
+    case PRIO:
+        printf("%s%d:%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), THE_SCHEDULER->get_quantum(), THE_SCHEDULER->get_maxprio());
+    case PREPRIO:
+        printf("%s%d:%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), THE_SCHEDULER->get_quantum(), THE_SCHEDULER->get_maxprio());
+    default:
+        printf("%s\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()));
+    }
     done_layer.print_stats(total_io_time);
     return 0;
 }

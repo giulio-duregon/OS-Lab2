@@ -320,7 +320,7 @@ public:
 
 private:
     int quantum;
-    SCHEDULER_TYPE _scheduler_type = SRTF;
+    SCHEDULER_TYPE _scheduler_type = RR;
 };
 
 Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
@@ -329,7 +329,6 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
     {
     case FCFS:
         return (Scheduler *)new FIFO_Scheduler;
-
     case LCFS:
         return (Scheduler *)new LCFS_Scheduler;
     case SRTF:
