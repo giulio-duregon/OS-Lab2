@@ -140,6 +140,9 @@ public:
         // Accounting
         _last_trans_time = curr_time_of_update;
         _total_io_time += io_burst;
+
+        // Whenever a process returns from IO its dynamic priority is set to static-1
+        set_dynamic_prio(_static_prio - 1);
     }
 
     int get_total_cpu_time()
