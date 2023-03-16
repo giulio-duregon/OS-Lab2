@@ -207,6 +207,7 @@ int main(int argc, char **argv)
 
             // Transition state to ready
             curr_process->update_state(STATE_READY);
+            curr_process->set_last_trans_time(CURRENT_TIME);
 
             if (v)
             {
