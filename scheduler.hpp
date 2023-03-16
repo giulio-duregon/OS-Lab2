@@ -82,7 +82,7 @@ public:
     {
         return _scheduler_type;
     }
-    int get_quantum()
+    virtual int get_quantum()
     {
         return _quantum;
     }
@@ -94,7 +94,7 @@ public:
 
 private:
     SCHEDULER_TYPE _scheduler_type;
-    int _quantum = 0;
+    int _quantum;
     int _maxprio = 0;
     void scan_optional(const char *s)
     {
@@ -109,6 +109,10 @@ private:
 class FIFO_Scheduler : Scheduler
 {
 public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
     // FIFO Scheduler should add process based on id
     // Id will determine the insert order
     void add_process(Process *to_add)
@@ -155,13 +159,17 @@ public:
     std::deque<Process *> RUN_QUEUE;
 
 private:
-    int quantum = 10000;
+    int _quantum = 10000;
     SCHEDULER_TYPE _scheduler_type = FCFS;
 };
 
 class LCFS_Scheduler : Scheduler
 {
 public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
     // LCFS Scheduler should add process based event time
     // Id will determine the insert order
     void add_process(Process *to_add)
@@ -208,13 +216,17 @@ public:
     std::deque<Process *> RUN_QUEUE;
 
 private:
-    int quantum = 10000;
+    int _quantum = 10000;
     SCHEDULER_TYPE _scheduler_type = LCFS;
 };
 
 class SRTF_Scheduler : Scheduler
 {
 public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
     // LCFS Scheduler should add process based event time
     // Id will determine the insert order
     void add_process(Process *to_add)
@@ -261,35 +273,26 @@ public:
     std::deque<Process *> RUN_QUEUE;
 
 private:
-    int quantum = 10000;
+    int _quantum = 10000;
     SCHEDULER_TYPE _scheduler_type = SRTF;
 };
 
 class RR_Scheduler : Scheduler
 {
 public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
     RR_Scheduler(int g_quantum)
     {
-        quantum = g_quantum;
+        _quantum = g_quantum;
     };
 
     // LCFS Scheduler should add process based event time
     // Id will determine the insert order
     void add_process(Process *to_add)
     {
-        // printf("Adding process id: %d to run queue\n", to_add->get_process_id());
-        set_process_dynamic_prio(to_add);
-
-        std::deque<Process *>::iterator it;
-        for (it = RUN_QUEUE.begin(); it != RUN_QUEUE.end(); ++it)
-        {
-            Process *temp = *it;
-            if (to_add->get_remaining_time() < temp->get_remaining_time())
-            {
-                RUN_QUEUE.insert(it, to_add);
-                return;
-            }
-        }
         RUN_QUEUE.push_back(to_add);
         return;
     };
@@ -319,7 +322,7 @@ public:
     std::deque<Process *> RUN_QUEUE;
 
 private:
-    int quantum;
+    int _quantum;
     SCHEDULER_TYPE _scheduler_type = RR;
 };
 

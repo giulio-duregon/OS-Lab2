@@ -128,7 +128,6 @@ int main(int argc, char **argv)
             // Create process / event, add to event deque
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
             process->set_static_prio(static_prio);
-            // TODO: Revisit this
             process->set_dynamic_prio(static_prio);
 
             // Create even and add it to the queue
@@ -216,6 +215,7 @@ int main(int argc, char **argv)
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
+            CURRENT_RUNNING_PROCESS = nullptr;
             break;
 
         case TRANS_TO_RUN:
