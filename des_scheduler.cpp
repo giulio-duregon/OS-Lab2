@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     double total_io_time = 0;
     int last_time_start_io = 0;
     int events_in_io = 0;
-
+    int sched_quantum = THE_SCHEDULER->get_quantum();
     // Begin simulation
     while ((curr_event = des_layer.get_event()) != nullptr)
     {
@@ -209,6 +209,10 @@ int main(int argc, char **argv)
             // Transition state to ready
             curr_process->update_state(STATE_READY);
 
+            if (v)
+            {
+                printf("%d %d %d RUN->READY cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, curr_process->get_remaining_cpu_burst_from_preemt(), curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
+            }
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
@@ -217,38 +221,85 @@ int main(int argc, char **argv)
         case TRANS_TO_RUN:
             // Must come from READY state
             assert(curr_process->get_process_state() == (STATE_READY));
+            curr_process->update_state(STATE_RUNNING);
 
-            // Calculate cpu burst
-            cpu_burst = rand_burst(curr_process->get_cpu_burst(), randvals, offset, r_array_size);
-            offset++;
-            // If cpu burst is larger than the time remaining, make them equal per instructions
-            if (cpu_burst > curr_process->get_remaining_time())
+            // Workflow if coming from preemt
+            if (curr_process->get_coming_from_preemt())
             {
-                cpu_burst = curr_process->get_remaining_time();
+                // If coming from preemt, get remaining burst
+                cpu_burst = curr_process->get_remaining_cpu_burst_from_preemt();
             }
+            else
+            {
+                // Otherwise Calculate next cpu burst
+                cpu_burst = rand_burst(curr_process->get_cpu_burst(), randvals, offset, r_array_size);
+                offset++;
+            }
+
+            // Check for quantum preemt -> update accounting accordingly
+            if (cpu_burst > sched_quantum)
+            {
+                // Update flag
+                curr_process->set_coming_from_preemt(true);
+                // Set remaining time
+                curr_process->set_remaining_cpu_burst_from_preemt(cpu_burst - sched_quantum);
+                // Update cpu burst
+                cpu_burst = sched_quantum;
+                // Decrement Dynamic Prio
+                curr_process->decrement_prio_post_preemt();
+
+                // Check if process will finish during burst
+                if (cpu_burst > curr_process->get_remaining_time())
+                {
+                    // No longer need to preemt
+                    curr_process->set_coming_from_preemt(false);
+                    cpu_burst = curr_process->get_remaining_time();
+                }
+            }
+            else
+            {
+                // Update state accordingly -- RESET FLAG
+                curr_process->set_coming_from_preemt(false);
+
+                // Check if process will finish during burst
+                if (cpu_burst > curr_process->get_remaining_time())
+                {
+                    cpu_burst = curr_process->get_remaining_time();
+                }
+            }
+
+            // UPDATE ACCOUNTING
+            curr_process->update_post_cpu_burst(CURRENT_TIME, cpu_burst);
+
+            // Print verbose output if necessary
             if (v)
             {
                 printf("%d %d %d READY->RUN cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst, curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
             }
 
-            // Update accounting / state of process
-            curr_process->update_post_cpu_burst(CURRENT_TIME, cpu_burst);
-            // Update prior and current state
-            curr_process->update_state(STATE_RUNNING);
-
-            // TODO: Use quantum /burst for preemption, for now just think of blocking
-
-            // Do we add event if remaining time < 0?
-            if (curr_process->get_remaining_time() > 0)
+            // Check if done
+            if (curr_process->get_remaining_time() <= 0)
             {
-                // create event for either preemption or blocking
-                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_BLOCK);
+                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_DONE);
                 des_layer.put_event(transition_event_to_add);
             }
             else
             {
-                transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_DONE);
-                des_layer.put_event(transition_event_to_add);
+                // IO takes precedence over Preemt
+                // Don't mind the order of ifs b/c the condition for preemt is a
+                // strict greater than rather than a greater of equal
+                if (curr_process->get_coming_from_preemt())
+                {
+                    // Add preempt event
+                    transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_PREEMPT);
+                    des_layer.put_event(transition_event_to_add);
+                }
+                else
+                {
+                    // Go into blocking
+                    transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_BLOCK);
+                    des_layer.put_event(transition_event_to_add);
+                }
             }
             break;
 

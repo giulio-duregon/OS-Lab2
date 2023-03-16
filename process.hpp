@@ -119,6 +119,18 @@ public:
         return _io_burst;
     }
 
+    void decrement_prio_post_preemt()
+    {
+        // Decrement by 1
+        _dynamic_prio -= 1;
+
+        // If its == -1 then reset to static-1
+        if (_dynamic_prio <= -1)
+        {
+            _dynamic_prio = _static_prio - 1;
+        }
+    }
+
     void update_post_cpu_burst(int curr_time_of_update, int cpu_burst)
     {
 
@@ -180,6 +192,26 @@ public:
         _process_state = new_state;
     }
 
+    bool get_coming_from_preemt()
+    {
+        return _preemt_flag;
+    }
+
+    void set_coming_from_preemt(bool flag)
+    {
+        _preemt_flag = flag;
+    }
+
+    int get_remaining_cpu_burst_from_preemt()
+    {
+        return _remaining_cpu_burst_from_preemt;
+    }
+
+    void set_remaining_cpu_burst_from_preemt(int val)
+    {
+        _remaining_cpu_burst_from_preemt = val;
+    }
+
 private:
     // Variables used for accounting
     int _remaining_cpu_time = 0;
@@ -191,7 +223,8 @@ private:
     int _dynamic_prio = 0;
     int _static_prio = 0;
     int id;
-
+    bool _preemt_flag = false;
+    int _remaining_cpu_burst_from_preemt;
     // Variables read in from input
     PROCESS_STATES _process_state;
     PROCESS_STATES _old_process_state;
