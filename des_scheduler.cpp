@@ -381,7 +381,7 @@ int main(int argc, char **argv)
     switch (type)
     {
     case RR:
-        printf("R %d\n", sched_quantum);
+        printf("%s %d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum);
         break;
     case PRIO:
         printf("%s%d:%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum, THE_SCHEDULER->get_maxprio());
