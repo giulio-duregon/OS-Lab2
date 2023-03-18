@@ -2,7 +2,8 @@
 #include <exception>
 #include "process.hpp"
 #include <deque>
-
+#include <vector>
+#include <cassert>
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
@@ -326,6 +327,94 @@ private:
     SCHEDULER_TYPE _scheduler_type = RR;
 };
 
+class PRIO_Scheduler : Scheduler
+{
+public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
+    PRIO_Scheduler(int g_quantum, int maxprio)
+    {
+        _quantum = g_quantum;
+        _maxprio = maxprio;
+        init_queue(maxprio);
+    };
+
+    // LCFS Scheduler should add process based event time
+    // Id will determine the insert order
+    void add_process(Process *to_add)
+    {
+        int prio = to_add->get_dynamic_prio();
+        std::deque<Process *> *temp;
+        std::vector<std::deque<Process *> *>::iterator it;
+        it = prio_array.begin();
+        int i = 0;
+        for (i; i < prio; i++)
+        {
+            it++;
+        }
+        printf("Que level reached: %d\n", i);
+        temp = *it;
+        temp->push_back(to_add);
+        return;
+    };
+
+    void set_process_dynamic_prio(Process *process)
+    {
+        if (process->get_dynamic_prio() <= -1)
+        {
+            process->set_dynamic_prio(process->get_static_prio() - 1);
+        }
+    }
+
+    void init_queue(int maxprio)
+    {
+        for (int i = 0; i < maxprio; i++)
+        {
+            std::deque<Process *> *temp = new std::deque<Process *>{};
+            prio_array.push_back(temp);
+        }
+        assert(prio_array.size() == maxprio);
+    }
+    std::deque<Process *> *get_next_queue()
+    {
+        std::deque<Process *> *temp;
+        std::vector<std::deque<Process *> *>::iterator it;
+        for (it = prio_array.end(); it != prio_array.begin(); it--)
+        {
+            temp = *it;
+            if (temp->size() > 0)
+            {
+                return temp;
+            }
+        }
+        return nullptr;
+    }
+
+    Process *get_next_process()
+    {
+        if (RUN_QUEUE.size())
+        {
+            Process *next_process = RUN_QUEUE.front();
+            RUN_QUEUE.pop_front();
+            return next_process;
+        }
+        else
+        {
+            return nullptr;
+        }
+    };
+
+    std::deque<Process *> RUN_QUEUE;
+
+private:
+    int _quantum;
+    int _maxprio;
+    std::vector<std::deque<Process *> *> prio_array;
+    SCHEDULER_TYPE _scheduler_type = RR;
+};
+
 Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
 {
     switch (type)
@@ -338,6 +427,8 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
         return (Scheduler *)new SRTF_Scheduler;
     case RR:
         return (Scheduler *)new RR_Scheduler(quantum);
+    case PRIO:
+        return (Scheduler *)new PRIO_Scheduler(quantum, maxprio);
     };
 }
 #endif
