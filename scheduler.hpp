@@ -346,17 +346,7 @@ public:
     void add_process(Process *to_add)
     {
         int prio = to_add->get_dynamic_prio();
-        std::deque<Process *> *temp;
-        std::vector<std::deque<Process *> *>::iterator it;
-        it = prio_array.begin();
-        int i = 0;
-        for (i; i < prio; i++)
-        {
-            it++;
-        }
-        printf("Que level reached: %d\n", i);
-        temp = *it;
-        temp->push_back(to_add);
+        (active_q + prio)->push_back(to_add);
         return;
     };
 
@@ -370,23 +360,18 @@ public:
 
     void init_queue(int maxprio)
     {
-        for (int i = 0; i < maxprio; i++)
-        {
-            std::deque<Process *> *temp = new std::deque<Process *>{};
-            prio_array.push_back(temp);
-        }
-        assert(prio_array.size() == maxprio);
+        active_q = new std::deque<Process *>[maxprio];
+        expired_q = new std::deque<Process *>[maxprio];
     }
     std::deque<Process *> *get_next_queue()
     {
         std::deque<Process *> *temp;
         std::vector<std::deque<Process *> *>::iterator it;
-        for (it = prio_array.end(); it != prio_array.begin(); it--)
+        for (int i = 0; i < _maxprio; i++)
         {
-            temp = *it;
-            if (temp->size() > 0)
+            if ((active_q + i)->size() > 0)
             {
-                return temp;
+                return (active_q + i);
             }
         }
         return nullptr;
@@ -394,6 +379,8 @@ public:
 
     Process *get_next_process()
     {
+        // Find the next available queue
+        std::deque<Process *> *que = get_next_queue();
         if (RUN_QUEUE.size())
         {
             Process *next_process = RUN_QUEUE.front();
@@ -411,8 +398,9 @@ public:
 private:
     int _quantum;
     int _maxprio;
-    std::vector<std::deque<Process *> *> prio_array;
-    SCHEDULER_TYPE _scheduler_type = RR;
+    std::deque<Process *> *active_q;
+    std::deque<Process *> *expired_q;
+    SCHEDULER_TYPE _scheduler_type = PRIO;
 };
 
 Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
