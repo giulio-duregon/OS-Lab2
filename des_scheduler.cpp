@@ -385,10 +385,10 @@ int main(int argc, char **argv)
         printf("%s %d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum);
         break;
     case PRIO:
-        printf("%s%d:%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum, THE_SCHEDULER->get_maxprio());
+        printf("%s %d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum);
         break;
     case PREPRIO:
-        printf("%s%d:%d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum, THE_SCHEDULER->get_maxprio());
+        printf("%s %d\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()), sched_quantum);
         break;
     default:
         printf("%s\n", GET_SCHEDULER_NAME_FROM_ENUM(scheduler_builder.get_type()));
