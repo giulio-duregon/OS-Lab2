@@ -123,12 +123,6 @@ public:
     {
         // Decrement by 1
         _dynamic_prio -= 1;
-
-        // If its == -1 then reset to static-1
-        if (_dynamic_prio <= -1)
-        {
-            _dynamic_prio = _static_prio - 1;
-        }
     }
 
     void update_post_cpu_burst(int curr_time_of_update, int cpu_burst)

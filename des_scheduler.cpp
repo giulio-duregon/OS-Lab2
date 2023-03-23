@@ -216,6 +216,12 @@ int main(int argc, char **argv)
 
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
+
+            if (t)
+            {
+                THE_SCHEDULER->print_qs();
+            }
+
             CALL_SCHEDULER = true;
             CURRENT_RUNNING_PROCESS = nullptr;
             break;
@@ -337,6 +343,10 @@ int main(int argc, char **argv)
 
             // Call schedule and set flag of current process
             CALL_SCHEDULER = true;
+            if (t)
+            {
+                THE_SCHEDULER->print_qs();
+            }
             break;
 
         case TRANS_TO_DONE:

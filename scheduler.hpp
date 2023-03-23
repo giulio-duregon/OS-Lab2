@@ -34,6 +34,7 @@ char *GET_SCHEDULER_NAME_FROM_ENUM(int enum_code)
 class Scheduler
 {
 public:
+    virtual void print_qs(){};
     virtual void add_process(Process *process_to_add){};
     virtual Process *get_next_process() { return nullptr; };
     Scheduler(){};
@@ -349,9 +350,8 @@ public:
         int prio = to_add->get_dynamic_prio();
         if (prio <= -1)
         {
-            set_process_dynamic_prio(to_add);
-            add_to_expired_q(to_add);
-            ;
+            to_add->set_dynamic_prio(to_add->get_static_prio() - 1);
+            (expired_q + (to_add->get_dynamic_prio()))->push_back(to_add);
         }
         else
         {
@@ -420,6 +420,48 @@ public:
         Process *next_process = que->front();
         que->pop_front();
         return next_process;
+    }
+
+    void print_qs()
+    {
+        printf("{ ");
+        for (int i = _maxprio - 1; i >= 0; i--)
+        {
+            printf("[");
+            std::deque<Process *>::iterator it;
+            std::deque<Process *> temp = *(active_q + i);
+            for (it = temp.begin(); it != temp.end(); it++)
+            {
+                Process *temp_process = *it;
+                printf("%d", temp_process->get_process_id());
+                if ((it + 1) != temp.end())
+                {
+                    printf(",");
+                }
+            }
+            printf("]");
+        }
+        printf(" }");
+
+        printf("{ ");
+        for (int i = _maxprio - 1; i >= 0; i--)
+        {
+            printf("[");
+            std::deque<Process *>::iterator it;
+            std::deque<Process *> temp = *(expired_q + i);
+            for (it = temp.begin(); it != temp.end(); it++)
+            {
+                Process *temp_process = *it;
+                printf("%d", temp_process->get_process_id());
+                if ((it + 1) != temp.end())
+                {
+                    printf(",");
+                }
+            }
+            printf("]");
+        }
+        printf(" }");
+        printf("\n");
     }
 
 private:
