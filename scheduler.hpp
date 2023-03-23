@@ -472,6 +472,150 @@ private:
     SCHEDULER_TYPE _scheduler_type = PRIO;
 };
 
+class PREPRIO_Scheduler : Scheduler
+{
+public:
+    int get_quantum()
+    {
+        return _quantum;
+    }
+
+    PREPRIO_Scheduler(int g_quantum, int maxprio)
+    {
+        _quantum = g_quantum;
+        _maxprio = maxprio;
+        init_queue(maxprio);
+    };
+
+    // LCFS Scheduler should add process based event time
+    // Id will determine the insert order
+    void add_process(Process *to_add)
+    {
+        int prio = to_add->get_dynamic_prio();
+        if (prio <= -1)
+        {
+            to_add->set_dynamic_prio(to_add->get_static_prio() - 1);
+            (expired_q + (to_add->get_dynamic_prio()))->push_back(to_add);
+        }
+        else
+        {
+            (active_q + prio)->push_back(to_add);
+        }
+
+        return;
+    };
+
+    void add_to_expired_q(Process *to_add)
+    {
+        int prio = to_add->get_dynamic_prio();
+        (expired_q + prio)->push_back(to_add);
+    }
+
+    void set_process_dynamic_prio(Process *process)
+    {
+        if (process->get_dynamic_prio() <= -1)
+        {
+            process->set_dynamic_prio(process->get_static_prio() - 1);
+            add_to_expired_q(process);
+        }
+    }
+
+    void init_queue(int maxprio)
+    {
+        active_q = new std::deque<Process *>[maxprio];
+        expired_q = new std::deque<Process *>[maxprio];
+    }
+
+    std::deque<Process *> *get_next_queue()
+    {
+        std::deque<Process *> *temp;
+        std::vector<std::deque<Process *> *>::iterator it;
+        for (int i = _maxprio - 1; i >= 0; i--)
+        {
+            if ((active_q + i)->size() > 0)
+            {
+                return (active_q + i);
+            }
+        }
+        return nullptr;
+    }
+
+    Process *get_next_process()
+    {
+        // Find the next available queue
+        std::deque<Process *> *que = get_next_queue();
+
+        // If no process in active q, switch with expired
+        if (que == nullptr)
+        {
+            // Swap active and expired
+            std::deque<Process *> *temp = active_q;
+            active_q = expired_q;
+            expired_q = temp;
+            // Search for next non empty queue
+            que = get_next_queue();
+        }
+
+        if (que == nullptr)
+        {
+            return nullptr;
+        }
+
+        Process *next_process = que->front();
+        que->pop_front();
+        return next_process;
+    }
+
+    void print_qs()
+    {
+        printf("{ ");
+        for (int i = _maxprio - 1; i >= 0; i--)
+        {
+            printf("[");
+            std::deque<Process *>::iterator it;
+            std::deque<Process *> temp = *(active_q + i);
+            for (it = temp.begin(); it != temp.end(); it++)
+            {
+                Process *temp_process = *it;
+                printf("%d", temp_process->get_process_id());
+                if ((it + 1) != temp.end())
+                {
+                    printf(",");
+                }
+            }
+            printf("]");
+        }
+        printf(" }");
+
+        printf("{ ");
+        for (int i = _maxprio - 1; i >= 0; i--)
+        {
+            printf("[");
+            std::deque<Process *>::iterator it;
+            std::deque<Process *> temp = *(expired_q + i);
+            for (it = temp.begin(); it != temp.end(); it++)
+            {
+                Process *temp_process = *it;
+                printf("%d", temp_process->get_process_id());
+                if ((it + 1) != temp.end())
+                {
+                    printf(",");
+                }
+            }
+            printf("]");
+        }
+        printf(" }");
+        printf("\n");
+    }
+
+private:
+    int _quantum;
+    int _maxprio;
+    std::deque<Process *> *active_q;
+    std::deque<Process *> *expired_q;
+    SCHEDULER_TYPE _scheduler_type = PREPRIO;
+};
+
 Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
 {
     switch (type)
@@ -486,6 +630,8 @@ Scheduler *build_scheduler(SCHEDULER_TYPE type, int quantum, int maxprio)
         return (Scheduler *)new RR_Scheduler(quantum);
     case PRIO:
         return (Scheduler *)new PRIO_Scheduler(quantum, maxprio);
+    case PREPRIO:
+        return (Scheduler *)new PREPRIO_Scheduler(quantum, maxprio);
     };
 }
 #endif
