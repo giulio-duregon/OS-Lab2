@@ -65,7 +65,8 @@ public:
         event_layer.push_back(to_add);
         return;
     }
-    bool event_for_time_and_process(int time_query, int process_id_to_check)
+
+    void remove_preempt_or_ready(int time_query, int process_id_to_check)
     {
         std::deque<Event *>::iterator it;
 
@@ -73,12 +74,30 @@ public:
         {
             // Return true if there is a matching event for timestmap/process id
             Event *temp = *it;
-            if (temp->get_process_id() == process_id_to_check && (temp->get_timestamp() == time_query))
+            // EVENT_STATES event_state = temp->get_event_state();
+            // if ((event_state == TRANS_TO_READY) || (event_state == TRANS_TO_PREEMPT || (event_state == TRANS_TO_DONE)))
+
+            if ((temp->get_process_id() == process_id_to_check) && (temp->get_timestamp() > time_query))
             {
-                return true;
+                event_layer.erase(it);
+                return;
             }
         }
-        return false;
+    }
+    bool no_event_for_time_and_process(int time_query, int process_id_to_check)
+    {
+        std::deque<Event *>::iterator it;
+
+        for (it = event_layer.begin(); it != event_layer.end(); ++it)
+        {
+            // Return true if there is a matching event for timestmap/process id
+            Event *temp = *it;
+            if ((temp->get_process_id() == process_id_to_check) && (temp->get_timestamp() == time_query))
+            {
+                return false;
+            }
+        }
+        return true;
     }
     Event *get_event()
     {

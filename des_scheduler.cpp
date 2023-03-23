@@ -83,16 +83,6 @@ int main(int argc, char **argv)
     // Sets type and max prio
     scheduler_builder.set_scheduler_type(s);
 
-    // TODO: DELETE LATER:
-
-    /* printf("args passed: -v %s -t %s -e %s -p %s -i %s -s %s inputfile: %s randfile: %s \n",
-    //        v ? "true" : "false",
-    //        t ? "true" : "false",
-    //        e ? "true" : "false",
-    //        p ? "true" : "false",
-    //        i ? "true" : "false",
-    //        s, inputfile_name.c_str(), randfile_name.c_str()); */
-
     // Gets the first value of the rfile, which is the array size needed inthe scheduler
     int r_array_size;
     std::ifstream rfile;
@@ -201,13 +191,29 @@ int main(int argc, char **argv)
             CALL_SCHEDULER = true;
 
             // For E sched, check if a process becoming ready preemts another
-            if (CURRENT_RUNNING_PROCESS != nullptr && THE_SCHEDULER->get_type() == PREPRIO)
+            if ((CURRENT_RUNNING_PROCESS != nullptr) && (scheduler_builder.get_type() == PREPRIO))
             {
-                // check for current events at given time
-                bool event_at_given_timestamp = des_layer.event_for_time_and_process(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
-                if (event_at_given_timestamp == false && (curr_process->get_dynamic_prio() > CURRENT_RUNNING_PROCESS->get_dynamic_prio()))
+                printf("Checking for preemt\n");
+                // Saving locals for readability
+                int run_prio = CURRENT_RUNNING_PROCESS->get_dynamic_prio();
+                int cur_prio = curr_process->get_dynamic_prio();
+                bool no_event_at_given_timestamp = des_layer.no_event_for_time_and_process(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+
+                // Check if there's any more events at the time stamp for given process
+                // And if the current_process prio is larger than the running
+                if ((no_event_at_given_timestamp) && (cur_prio > run_prio))
                 {
-                    Event *transition_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_DONE);
+                    des_layer.remove_preempt_or_ready(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+                    printf("Preemting a process!\n");
+                    printf("Current Running Process Id: %d Prio: %d\n", CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
+                    printf("Preempting Process Id: %d Prio: %d\n", curr_process->get_process_id(), curr_process->get_dynamic_prio());
+                    CURRENT_RUNNING_PROCESS->set_coming_from_preemt(true);
+                    int remaining_cpu_burst = CURRENT_TIME - CURRENT_RUNNING_PROCESS->get_last_trans_time();
+                    CURRENT_RUNNING_PROCESS->set_last_trans_time(CURRENT_TIME);
+                    CURRENT_RUNNING_PROCESS->set_remaining_cpu_burst_from_preemt(remaining_cpu_burst - sched_quantum);
+
+                    Event *transition_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_PREEMPT);
+                    des_layer.put_event(transition_event_to_add);
                 }
             }
             break;

@@ -12,8 +12,8 @@
             "args": [
                 "-v",
                 "-s",
-                "P10:5",
-                "./input1",
+                "E4",
+                "./input3",
                 "./rfile"
             ],
             "stopAtEntry": false,
