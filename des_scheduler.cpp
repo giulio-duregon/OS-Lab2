@@ -193,7 +193,6 @@ int main(int argc, char **argv)
             // For E sched, check if a process becoming ready preemts another
             if ((CURRENT_RUNNING_PROCESS != nullptr) && (scheduler_builder.get_type() == PREPRIO))
             {
-                printf("Checking for preemt\n");
                 // Saving locals for readability
                 int run_prio = CURRENT_RUNNING_PROCESS->get_dynamic_prio();
                 int cur_prio = curr_process->get_dynamic_prio();
@@ -204,9 +203,13 @@ int main(int argc, char **argv)
                 if ((no_event_at_given_timestamp) && (cur_prio > run_prio))
                 {
                     des_layer.remove_preempt_or_ready(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
-                    printf("Preemting a process!\n");
-                    printf("Current Running Process Id: %d Prio: %d\n", CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
-                    printf("Preempting Process Id: %d Prio: %d\n", curr_process->get_process_id(), curr_process->get_dynamic_prio());
+                    if (v)
+                    {
+                        printf("Preemting a process!\n");
+                        printf("Current Running Process Id: %d Prio: %d\n", CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
+                        printf("Preempting Process Id: %d Prio: %d\n", curr_process->get_process_id(), curr_process->get_dynamic_prio());
+                    }
+
                     CURRENT_RUNNING_PROCESS->set_coming_from_preemt(true);
                     int remaining_cpu_burst = CURRENT_TIME - CURRENT_RUNNING_PROCESS->get_last_trans_time();
                     CURRENT_RUNNING_PROCESS->set_last_trans_time(CURRENT_TIME);
