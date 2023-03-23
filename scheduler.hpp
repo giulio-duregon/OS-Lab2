@@ -334,6 +334,7 @@ public:
     {
         return _quantum;
     }
+    
     PRIO_Scheduler(int g_quantum, int maxprio)
     {
         _quantum = g_quantum;
@@ -346,15 +347,32 @@ public:
     void add_process(Process *to_add)
     {
         int prio = to_add->get_dynamic_prio();
-        (active_q + prio)->push_back(to_add);
+        if (prio < 0)
+        {
+            set_process_dynamic_prio(to_add);
+            add_to_expired_q(to_add);
+            ;
+        }
+        else
+        {
+            (active_q + prio)->push_back(to_add);
+        }
+
         return;
     };
+
+    void add_to_expired_q(Process *to_add)
+    {
+        int prio = to_add->get_dynamic_prio();
+        (expired_q + prio)->push_back(to_add);
+    }
 
     void set_process_dynamic_prio(Process *process)
     {
         if (process->get_dynamic_prio() <= -1)
         {
             process->set_dynamic_prio(process->get_static_prio() - 1);
+            add_to_expired_q(process);
         }
     }
 
@@ -363,6 +381,7 @@ public:
         active_q = new std::deque<Process *>[maxprio];
         expired_q = new std::deque<Process *>[maxprio];
     }
+
     std::deque<Process *> *get_next_queue()
     {
         std::deque<Process *> *temp;
@@ -381,19 +400,27 @@ public:
     {
         // Find the next available queue
         std::deque<Process *> *que = get_next_queue();
-        if (RUN_QUEUE.size())
+
+        // If no process in active q, switch with expired
+        if (que = nullptr)
         {
-            Process *next_process = RUN_QUEUE.front();
-            RUN_QUEUE.pop_front();
-            return next_process;
+            // Swap active and expired
+            std::deque<Process *> *temp = active_q;
+            active_q = expired_q;
+            expired_q = temp;
+            // Search for next non empty queue
+            que = get_next_queue();
         }
-        else
+
+        if (que == nullptr)
         {
             return nullptr;
         }
-    };
 
-    std::deque<Process *> RUN_QUEUE;
+        Process *next_process = que->front();
+        que->pop_front();
+        return next_process;
+    }
 
 private:
     int _quantum;
