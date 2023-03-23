@@ -65,7 +65,21 @@ public:
         event_layer.push_back(to_add);
         return;
     }
+    bool event_for_time_and_process(int time_query, int process_id_to_check)
+    {
+        std::deque<Event *>::iterator it;
 
+        for (it = event_layer.begin(); it != event_layer.end(); ++it)
+        {
+            // Return true if there is a matching event for timestmap/process id
+            Event *temp = *it;
+            if (temp->get_process_id() == process_id_to_check && (temp->get_timestamp() == time_query))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     Event *get_event()
     {
         if (event_layer.size() == 0)

@@ -199,6 +199,17 @@ int main(int argc, char **argv)
             // add to run queue, no event created
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
+
+            // For E sched, check if a process becoming ready preemts another
+            if (CURRENT_RUNNING_PROCESS != nullptr && THE_SCHEDULER->get_type() == PREPRIO)
+            {
+                // check for current events at given time
+                bool event_at_given_timestamp = des_layer.event_for_time_and_process(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+                if (event_at_given_timestamp == false && (curr_process->get_dynamic_prio() > CURRENT_RUNNING_PROCESS->get_dynamic_prio()))
+                {
+                    Event *transition_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_DONE);
+                }
+            }
             break;
 
         case TRANS_TO_PREEMPT:
