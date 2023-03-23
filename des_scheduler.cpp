@@ -202,18 +202,22 @@ int main(int argc, char **argv)
                 // And if the current_process prio is larger than the running
                 if ((no_event_at_given_timestamp) && (cur_prio > run_prio))
                 {
-                    des_layer.remove_preempt_or_ready(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+                    Event *temp = des_layer.remove_preempt_or_ready(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+                    int removed_event_time = temp->get_timestamp();
+                    
+
                     if (v)
                     {
                         printf("Preemting a process!\n");
-                        printf("Current Running Process Id: %d Prio: %d\n", CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
-                        printf("Preempting Process Id: %d Prio: %d\n", curr_process->get_process_id(), curr_process->get_dynamic_prio());
+                        printf("TIME: %d Current Running Process Id: %d Prio: %d\n", CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
+                        printf("TIME: %d Preempting Process Id: %d Prio: %d\n", CURRENT_TIME, curr_process->get_process_id(), curr_process->get_dynamic_prio());
                     }
 
                     CURRENT_RUNNING_PROCESS->set_coming_from_preemt(true);
-                    int remaining_cpu_burst = CURRENT_TIME - CURRENT_RUNNING_PROCESS->get_last_trans_time();
+                    int remaining_cpu_burst = removed_event_time - CURRENT_TIME;
                     CURRENT_RUNNING_PROCESS->set_last_trans_time(CURRENT_TIME);
-                    CURRENT_RUNNING_PROCESS->set_remaining_cpu_burst_from_preemt(remaining_cpu_burst - sched_quantum);
+                    int remaining_cpu_time = CURRENT_RUNNING_PROCESS->get_remaining_cpu_burst_from_preemt();
+                    CURRENT_RUNNING_PROCESS->set_remaining_cpu_burst_from_preemt(remaining_cpu_burst + remaining_cpu_time);
 
                     Event *transition_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_PREEMPT);
                     des_layer.put_event(transition_event_to_add);

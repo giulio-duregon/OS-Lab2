@@ -66,7 +66,7 @@ public:
         return;
     }
 
-    void remove_preempt_or_ready(int time_query, int process_id_to_check)
+    Event *remove_preempt_or_ready(int time_query, int process_id_to_check)
     {
         std::deque<Event *>::iterator it;
 
@@ -80,7 +80,7 @@ public:
             if ((temp->get_process_id() == process_id_to_check) && (temp->get_timestamp() > time_query))
             {
                 event_layer.erase(it);
-                return;
+                return temp;
             }
         }
     }
