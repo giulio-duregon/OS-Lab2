@@ -334,7 +334,7 @@ public:
     {
         return _quantum;
     }
-    
+
     PRIO_Scheduler(int g_quantum, int maxprio)
     {
         _quantum = g_quantum;
@@ -402,7 +402,7 @@ public:
         std::deque<Process *> *que = get_next_queue();
 
         // If no process in active q, switch with expired
-        if (que = nullptr)
+        if (que == nullptr)
         {
             // Swap active and expired
             std::deque<Process *> *temp = active_q;

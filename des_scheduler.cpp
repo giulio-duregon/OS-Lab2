@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             // Create process / event, add to event deque
             Process *process = new Process(arrival_time, total_cpu_time, cpu_burst, io_burst);
             process->set_static_prio(static_prio);
-            process->set_dynamic_prio(static_prio);
+            process->set_dynamic_prio(static_prio - 1);
 
             // Create even and add it to the queue
             Event *event = new Event(arrival_time, process, TRANS_TO_READY, TRANS_TO_READY);
