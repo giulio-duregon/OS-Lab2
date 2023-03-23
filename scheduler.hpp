@@ -386,7 +386,7 @@ public:
     {
         std::deque<Process *> *temp;
         std::vector<std::deque<Process *> *>::iterator it;
-        for (int i = 0; i < _maxprio; i++)
+        for (int i = _maxprio - 1; i >= 0; i--)
         {
             if ((active_q + i)->size() > 0)
             {
