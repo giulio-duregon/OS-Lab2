@@ -347,7 +347,7 @@ public:
     void add_process(Process *to_add)
     {
         int prio = to_add->get_dynamic_prio();
-        if (prio < 0)
+        if (prio <= -1)
         {
             set_process_dynamic_prio(to_add);
             add_to_expired_q(to_add);

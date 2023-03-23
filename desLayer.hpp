@@ -40,9 +40,8 @@ public:
                     }
                 }
 
-                // Events with same time stamp transitioning from two states
-                // I.e. CPU burst / IO burst -> first even added should have precedence
-                if (temp_event_state != to_add_event_state)
+                // If they have the same event state (TRANS->READY) go by event time
+                if (temp_event_state == to_add_event_state)
                 {
                     if (to_add->get_event_id() < temp->get_event_id())
                     {
@@ -51,14 +50,13 @@ public:
                     }
                 }
 
-                // If they have the same
-                if (temp_event_state == to_add_event_state)
+                // If they have different even states go by order given in instructions
+                // DONE < BLOCK < PREEMPT
+                // Enum ordering enforces this behavior
+                if (temp_event_state < to_add_event_state)
                 {
-                    if (to_add->get_event_id() < temp->get_event_id())
-                    {
-                        event_layer.insert(it, to_add);
-                        return;
-                    }
+                    event_layer.insert(it, to_add);
+                    return;
                 }
             }
         }

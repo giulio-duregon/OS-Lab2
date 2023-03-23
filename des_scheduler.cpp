@@ -204,15 +204,16 @@ int main(int argc, char **argv)
         case TRANS_TO_PREEMPT:
             // must come from RUNNING (preemption)
             assert(curr_process->get_process_state() == (STATE_RUNNING));
-
-            // Transition state to ready
-            curr_process->update_state(STATE_READY);
-            curr_process->set_last_trans_time(CURRENT_TIME);
-
             if (v)
             {
                 printf("%d %d %d RUN->READY cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, curr_process->get_remaining_cpu_burst_from_preemt(), curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
             }
+
+            // Transition state to ready
+            curr_process->update_state(STATE_READY);
+            curr_process->set_last_trans_time(CURRENT_TIME);
+            curr_process->decrement_prio_post_preemt();
+
             // add to runqueue (no event is generated)
             THE_SCHEDULER->add_process(curr_process);
             CALL_SCHEDULER = true;
@@ -247,7 +248,7 @@ int main(int argc, char **argv)
                 // Update cpu burst
                 cpu_burst = sched_quantum;
                 // Decrement Dynamic Prio
-                curr_process->decrement_prio_post_preemt();
+                // curr_process->decrement_prio_post_preemt();
 
                 // Check if process will finish during burst
                 if (cpu_burst > curr_process->get_remaining_time())
@@ -275,7 +276,7 @@ int main(int argc, char **argv)
             // Print verbose output if necessary
             if (v)
             {
-                printf("%d %d %d READY->RUN cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst, curr_process->get_remaining_time(), curr_process->get_dynamic_prio());
+                printf("%d %d %d READY->RUN cb=%d rem=%d prio=%d\n", CURRENT_TIME, curr_process->get_process_id(), timeInPrevState, cpu_burst + curr_process->get_remaining_cpu_burst_from_preemt(), curr_process->get_remaining_time() + cpu_burst, curr_process->get_dynamic_prio());
             }
 
             // Check if done
