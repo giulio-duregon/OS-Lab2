@@ -196,31 +196,37 @@ int main(int argc, char **argv)
                 // Saving locals for readability
                 int run_prio = CURRENT_RUNNING_PROCESS->get_dynamic_prio();
                 int cur_prio = curr_process->get_dynamic_prio();
-                bool no_event_at_given_timestamp = des_layer.no_event_for_time_and_process(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+                bool cond1 = (cur_prio > run_prio);
+                bool cond2 = des_layer.no_event_for_time_and_process(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+
+                if (p)
+                {
+                    printf("%d: --> PrioPreempt Cond1=%d Cond2=%d (%d) --> %s\n", CURRENT_TIME, cond1 ? 1 : 0, cond2 ? 1 : 0, curr_process->get_dynamic_prio(), (cond1 && cond2) ? "YES" : "NO ");
+                }
 
                 // Check if there's any more events at the time stamp for given process
                 // And if the current_process prio is larger than the running
-                if ((no_event_at_given_timestamp) && (cur_prio > run_prio))
+                if ((cond1) && (cond2))
                 {
+                    // remove next event for current running process
                     Event *temp = des_layer.remove_preempt_or_ready(CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id());
+
                     int removed_event_time = temp->get_timestamp();
-                    
-
-                    if (v)
-                    {
-                        printf("Preemting a process!\n");
-                        printf("TIME: %d Current Running Process Id: %d Prio: %d\n", CURRENT_TIME, CURRENT_RUNNING_PROCESS->get_process_id(), CURRENT_RUNNING_PROCESS->get_dynamic_prio());
-                        printf("TIME: %d Preempting Process Id: %d Prio: %d\n", CURRENT_TIME, curr_process->get_process_id(), curr_process->get_dynamic_prio());
-                    }
-
                     CURRENT_RUNNING_PROCESS->set_coming_from_preemt(true);
+
+                    // Fix accounting
                     int remaining_cpu_burst = removed_event_time - CURRENT_TIME;
-                    CURRENT_RUNNING_PROCESS->set_last_trans_time(CURRENT_TIME);
+                    CURRENT_RUNNING_PROCESS->add_to_remaining_cpu_time(remaining_cpu_burst);
                     int remaining_cpu_time = CURRENT_RUNNING_PROCESS->get_remaining_cpu_burst_from_preemt();
                     CURRENT_RUNNING_PROCESS->set_remaining_cpu_burst_from_preemt(remaining_cpu_burst + remaining_cpu_time);
 
                     Event *transition_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_PREEMPT);
                     des_layer.put_event(transition_event_to_add);
+                    if (e)
+                    {
+                        printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME, transition_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(transition_event_to_add->get_event_state()));
+                        des_layer.print_event_layer();
+                    }
                 }
             }
             break;
@@ -292,7 +298,7 @@ int main(int argc, char **argv)
             {
                 // Update state accordingly -- RESET FLAG
                 curr_process->set_coming_from_preemt(false);
-
+                curr_process->set_remaining_cpu_burst_from_preemt(0);
                 // Check if process will finish during burst
                 if (cpu_burst > curr_process->get_remaining_time())
                 {
@@ -314,6 +320,11 @@ int main(int argc, char **argv)
             {
                 transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_DONE);
                 des_layer.put_event(transition_event_to_add);
+                if (e)
+                {
+                    printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME + cpu_burst, transition_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(transition_event_to_add->get_event_state()));
+                    des_layer.print_event_layer();
+                }
             }
             else
             {
@@ -325,12 +336,22 @@ int main(int argc, char **argv)
                     // Add preempt event
                     transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_PREEMPT);
                     des_layer.put_event(transition_event_to_add);
+                    if (e)
+                    {
+                        printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME + cpu_burst, transition_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(transition_event_to_add->get_event_state()));
+                        des_layer.print_event_layer();
+                    }
                 }
                 else
                 {
                     // Go into blocking
                     transition_event_to_add = new Event(CURRENT_TIME + cpu_burst, curr_process, last_event_state, TRANS_TO_BLOCK);
                     des_layer.put_event(transition_event_to_add);
+                    if (e)
+                    {
+                        printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME + cpu_burst, transition_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(transition_event_to_add->get_event_state()));
+                        des_layer.print_event_layer();
+                    }
                 }
             }
             break;
@@ -364,6 +385,11 @@ int main(int argc, char **argv)
             // Add event
             transition_event_to_add = new Event(CURRENT_TIME + io_burst, curr_process, last_event_state, TRANS_TO_READY);
             des_layer.put_event(transition_event_to_add);
+            if (e)
+            {
+                printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME + io_burst, transition_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(transition_event_to_add->get_event_state()));
+                des_layer.print_event_layer();
+            }
 
             // Call schedule and set flag of current process
             CALL_SCHEDULER = true;
@@ -408,6 +434,11 @@ int main(int argc, char **argv)
                 CURRENT_RUNNING_PROCESS->set_process_state(STATE_READY);
                 scheduler_event_to_add = new Event(CURRENT_TIME, CURRENT_RUNNING_PROCESS, last_event_state, TRANS_TO_RUN);
                 des_layer.put_event(scheduler_event_to_add);
+                if (e)
+                {
+                    printf("AddEvent(%d:%d:%s)\n", CURRENT_TIME, scheduler_event_to_add->get_process_id(), GET_EVENT_ENUM_NAME(scheduler_event_to_add->get_event_state()));
+                    des_layer.print_event_layer();
+                }
             }
         }
     }

@@ -125,6 +125,10 @@ public:
         _dynamic_prio -= 1;
     }
 
+    void add_to_remaining_cpu_time(int time_to_add)
+    {
+        _remaining_cpu_time += time_to_add;
+    }
     void update_post_cpu_burst(int curr_time_of_update, int cpu_burst)
     {
 

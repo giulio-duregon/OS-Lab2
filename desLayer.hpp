@@ -84,6 +84,24 @@ public:
             }
         }
     }
+
+    void print_event_layer()
+    {
+        std::deque<Event *>::iterator it;
+
+        for (it = event_layer.begin(); it != event_layer.end(); ++it)
+        {
+            // Return true if there is a matching event for timestmap/process id
+            Event *temp = *it;
+            int id = temp->get_process_id();
+            int timestamp = temp->get_timestamp();
+            EVENT_STATES event_state = temp->get_event_state();
+            char *event_name = GET_EVENT_ENUM_NAME(event_state);
+            printf(" %d:%d:%s ", timestamp, id, event_name);
+        }
+        printf("\n");
+    }
+
     bool no_event_for_time_and_process(int time_query, int process_id_to_check)
     {
         std::deque<Event *>::iterator it;

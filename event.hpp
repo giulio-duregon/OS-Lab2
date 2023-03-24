@@ -18,12 +18,12 @@ enum EVENT_STATES
 char *GET_EVENT_ENUM_NAME(int enum_code)
 {
     static char *event_arr[] = {
-        (char *)"TRANS_TO_CREATED",
-        (char *)"TRANS_TO_DONE",
-        (char *)"TRANS_TO_BLOCK",
-        (char *)"TRANS_TO_PREEMPT",
-        (char *)"TRANS_TO_READY",
-        (char *)"TRANS_TO_RUN"};
+        (char *)"CREATED",
+        (char *)"DONE",
+        (char *)"BLOCK",
+        (char *)"PREEMPT",
+        (char *)"READY",
+        (char *)"RUN"};
     return event_arr[enum_code];
 }
 
