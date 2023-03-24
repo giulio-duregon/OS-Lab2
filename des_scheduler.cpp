@@ -32,8 +32,11 @@ int rand_burst(int burst, int *randvals, int &offset, int array_size)
 int main(int argc, char **argv)
 {
     // Initialize program arguments storage
-    bool v, t, p;
-    bool e, i;
+    bool v = false;
+    bool t = false;
+    bool p = false;
+    bool e = false;
+    bool i = false;
     int c;
     char *s = nullptr;
     std::string inputfile_name;
